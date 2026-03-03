@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // AiCoin Features & Signals CLI
-import { apiGet, cli } from '../../lib/aicoin-api.mjs';
+import { apiGet, cli } from '../lib/aicoin-api.mjs';
 
 cli({
   // market_overview

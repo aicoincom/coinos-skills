@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Hyperliquid Data CLI - Part 1: ticker, whale, liquidation, OI, taker
-import { apiGet, apiPost, cli } from '../../lib/aicoin-api.mjs';
+import { apiGet, apiPost, cli } from '../lib/aicoin-api.mjs';
 
 cli({
   tickers: () => apiGet('/api/upgrade/v2/hl/tickers'),

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Freqtrade Dev Tools CLI
-import { ftGet, ftPost, ftDelete, ftCli } from '../../lib/freqtrade-api.mjs';
+import { ftGet, ftPost, ftDelete, ftCli } from '../lib/freqtrade-api.mjs';
 
 ftCli({
   backtest_start: (p) => ftPost('backtest', p),

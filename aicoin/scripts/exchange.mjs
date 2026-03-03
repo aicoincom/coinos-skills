@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // CCXT Exchange Trading CLI
 // Requires: npm install ccxt
-import { cli } from '../../lib/aicoin-api.mjs';
+import { cli } from '../lib/aicoin-api.mjs';
 
 const SUPPORTED = ['binance','okx','bybit','bitget','gate','htx','kucoin','mexc','coinbase'];
 

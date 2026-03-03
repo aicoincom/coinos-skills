@@ -1,38 +1,32 @@
-# AiCoin Skills for OpenClaw
+# AiCoin Skill for OpenClaw
 
-9 skills wrapping [AiCoin Open API](https://www.aicoin.com/opendata) — real-time crypto market data, on-chain analytics, exchange trading, and bot management. 40 tools total.
+One skill wrapping [AiCoin Open API](https://www.aicoin.com/opendata) — real-time crypto market data, on-chain analytics, exchange trading, and bot management. 40+ tools.
 
 ## Installation
+
+```bash
+clawhub install aicoin
+```
+
+Or via GitHub:
 
 ```bash
 npx skills add bbx-com/aicoin-skills
 ```
 
-Or from [ClawHub](https://clawhub.ai):
+## What's Included
 
-```bash
-clawhub install aicoin-coin-data
-```
-
-Or via install script:
-
-```bash
-curl -sL https://raw.githubusercontent.com/bbx-com/aicoin-skills/main/install.sh | bash
-```
-
-## Skills
-
-| Skill | Tools | Description |
-|-------|-------|-------------|
-| [aicoin-coin-data](coin-data/) | 12 | Coin prices, AI analysis, funding rates, liquidation, open interest |
-| [aicoin-market-data](market-data/) | 18 | K-lines, indicators, indexes, crypto stocks, treasury, depth |
-| [aicoin-news-content](news-content/) | 6 | News articles, flash updates, exchange listings |
-| [aicoin-features-signals](features-signals/) | 16 | Long/short ratio, whale orders, trading signals |
-| [aicoin-hyperliquid](hyperliquid/) | 30 | HL tickers, whales, liquidations, trader analytics, smart money |
-| [aicoin-exchange-trading](exchange-trading/) | 14 | CCXT exchange trading (Binance, OKX, Bybit, etc.) |
-| [aicoin-freqtrade](freqtrade/) | 24 | Freqtrade bot control and monitoring |
-| [aicoin-freqtrade-dev](freqtrade-dev/) | 14 | Backtesting, strategy management, pair lists |
-| [aicoin-guide](guide/) | — | Setup and configuration guide |
+| Script | Description | Tools |
+|--------|-------------|-------|
+| `coin.mjs` | Coin prices, AI analysis, funding rates, liquidation, open interest | 12 |
+| `market.mjs` | K-lines, indicators, indexes, crypto stocks, treasury, depth | 18 |
+| `news.mjs` | News articles, flash updates, exchange listings | 6 |
+| `features.mjs` | Long/short ratio, whale orders, trading signals | 16 |
+| `hl-market.mjs` | Hyperliquid tickers, whales, liquidations, OI, taker flow | 15 |
+| `hl-trader.mjs` | HL trader analytics, fills, orders, positions, portfolio | 15 |
+| `exchange.mjs` | CCXT exchange trading (Binance, OKX, Bybit, etc.) | 14 |
+| `ft.mjs` | Freqtrade bot control and monitoring | 24 |
+| `ft-dev.mjs` | Backtesting, strategy management, pair lists | 14 |
 
 ## Environment Variables
 
@@ -53,11 +47,14 @@ FREQTRADE_PASSWORD="xxx"
 
 ## Usage
 
-Each skill bundles CLI scripts. The agent runs them automatically, or you can call them directly:
+The agent runs scripts automatically. You can also call them directly:
 
 ```bash
-node <skill>/scripts/<name>.mjs <action> '{"param":"value"}'
+node aicoin/scripts/coin.mjs coin_ticker '{"coin_list":"bitcoin,ethereum"}'
+node aicoin/scripts/market.mjs kline '{"symbol":"btcusdt:okex","period":"3600","size":"100"}'
 ```
+
+See [SKILL.md](aicoin/SKILL.md) for the full action reference.
 
 ## License
 

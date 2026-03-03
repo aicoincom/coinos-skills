@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Freqtrade Bot Control CLI
-import { ftGet, ftPost, ftDelete, ftCli } from '../../lib/freqtrade-api.mjs';
+import { ftGet, ftPost, ftDelete, ftCli } from '../lib/freqtrade-api.mjs';
 
 ftCli({
   ping: () => ftGet('ping'),

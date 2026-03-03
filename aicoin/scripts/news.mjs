@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // AiCoin News & Flash CLI
-import { apiGet, cli } from '../../lib/aicoin-api.mjs';
+import { apiGet, cli } from '../lib/aicoin-api.mjs';
 
 cli({
   news_list: ({ page, pageSize = '20' } = {}) => {

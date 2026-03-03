@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Hyperliquid Trader Analytics CLI
-import { apiGet, apiPost, cli } from '../../lib/aicoin-api.mjs';
+import { apiGet, apiPost, cli } from '../lib/aicoin-api.mjs';
 
 cli({
   // hl_trader

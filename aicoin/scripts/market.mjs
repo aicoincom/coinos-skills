@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // AiCoin Market Data CLI
-import { apiGet, apiPost, cli } from '../../lib/aicoin-api.mjs';
+import { apiGet, apiPost, cli } from '../lib/aicoin-api.mjs';
 
 cli({
   // market_info

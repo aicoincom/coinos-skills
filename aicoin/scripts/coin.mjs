@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // AiCoin Coin Data CLI
-import { apiGet, apiPost, cli } from '../../lib/aicoin-api.mjs';
+import { apiGet, apiPost, cli } from '../lib/aicoin-api.mjs';
 
 cli({
   // coin_info
