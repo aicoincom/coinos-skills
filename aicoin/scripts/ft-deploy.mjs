@@ -52,6 +52,39 @@ function hasCommand(cmd) {
   try { run(`which ${cmd}`); return true; } catch { return false; }
 }
 
+// Find the best Python — prefer 3.12+ for pre-built wheels (avoid C compilation issues)
+function findPython() {
+  for (const bin of ['python3.13', 'python3.12', 'python3.11', 'python3.10', 'python3']) {
+    try {
+      const version = run(`${bin} --version`);
+      const match = version.match(/(\d+)\.(\d+)/);
+      if (match) {
+        const major = Number(match[1]), minor = Number(match[2]);
+        return { bin, major, minor, version };
+      }
+    } catch {}
+  }
+  return null;
+}
+
+// On macOS, ensure Python 3.10+ is available (3.9 lacks pre-built wheels for tables/PyTables)
+function ensureModernPython() {
+  const py = findPython();
+  if (!py) throw new Error('Python 3 not found. Install: brew install python@3.12');
+
+  if (process.platform === 'darwin' && py.minor < 10) {
+    console.error(`Found ${py.version} — too old for pre-built packages. Installing Python 3.12...`);
+    const brewEnv = { ...process.env, HOMEBREW_NO_AUTO_UPDATE: '1', HOMEBREW_NO_INSTALL_CLEANUP: '1' };
+    try {
+      run('brew install python@3.12', { timeout: 300000, env: brewEnv });
+      return findPython(); // re-detect after install
+    } catch (e) {
+      throw new Error(`Failed to install Python 3.12: ${e.message}\nManual fix: HOMEBREW_NO_AUTO_UPDATE=1 brew install python@3.12`);
+    }
+  }
+  return py;
+}
+
 // ─── System dependency management ───
 
 function hasTALib() {
@@ -242,10 +275,12 @@ function getPid() {
 const actions = {
   check: async () => {
     const checks = {};
-    // Python
-    try { checks.python = run('python3 --version'); } catch { checks.python = false; }
-    // pip
-    try { checks.pip = run('python3 -m pip --version').split(' ')[1]; } catch { checks.pip = false; }
+    // Python — prefer 3.10+ for pre-built wheels
+    const py = findPython();
+    checks.python = py ? `${py.version} (${py.bin})` : false;
+    if (py && py.minor < 10 && process.platform === 'darwin') {
+      checks.python_warning = 'Python < 3.10 detected. Deploy will auto-install Python 3.12 for compatibility.';
+    }
     // System dependencies (TA-Lib, HDF5)
     checks.system_deps = checkSystemDeps();
     // Freqtrade installed
@@ -258,10 +293,10 @@ const actions = {
     checks.running = !!pid;
     if (pid) checks.pid = pid;
 
-    checks.ready = !!checks.python && checks.exchange?.configured;
+    checks.ready = !!py && checks.exchange?.configured;
     if (!checks.ready) {
       checks.missing = [];
-      if (!checks.python) checks.missing.push('Python 3 not found. Install: apt install python3 python3-venv python3-pip');
+      if (!py) checks.missing.push('Python 3 not found. Install: brew install python@3.12');
       if (!checks.exchange?.configured) checks.missing.push('No exchange API keys in .env');
     }
     if (!checks.system_deps.all_ok) {
@@ -271,10 +306,9 @@ const actions = {
   },
 
   deploy: async (params = {}) => {
-    // 1. Check Python
-    try { run('python3 --version'); } catch {
-      throw new Error('Python 3 not found. Install: apt install python3 python3-venv python3-pip');
-    }
+    // 1. Find best Python (3.10+ for pre-built wheels, auto-installs 3.12 on macOS if needed)
+    const py = ensureModernPython();
+    console.error(`Using ${py.version} (${py.bin})`);
 
     // 2. Detect exchange
     const exchangeInfo = detectExchange();
@@ -290,9 +324,10 @@ const actions = {
     // 5. Create venv + install freqtrade (if not already installed)
     if (!existsSync(FT_BIN)) {
       console.error('Creating Python venv and installing Freqtrade (this may take a few minutes)...');
-      run(`python3 -m venv ${VENV_DIR}`);
-      run(`${resolve(VENV_DIR, 'bin', 'pip')} install --upgrade pip wheel`, { timeout: 120000 });
-      run(`${resolve(VENV_DIR, 'bin', 'pip')} install freqtrade`, { timeout: 600000 });
+      run(`${py.bin} -m venv ${VENV_DIR}`);
+      const pip = resolve(VENV_DIR, 'bin', 'pip');
+      run(`${pip} install --upgrade pip wheel setuptools`, { timeout: 120000 });
+      run(`${pip} install freqtrade`, { timeout: 600000 });
     }
 
     // 6. Generate config
