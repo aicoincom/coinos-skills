@@ -1,9 +1,11 @@
 ---
 name: aicoin
 description: >
-  AiCoin crypto data & trading toolkit. Real-time prices, AI analysis, funding rates,
-  liquidation, K-lines, indicators, whale tracking, Hyperliquid on-chain data,
-  exchange trading (CCXT), and Freqtrade bot control. 40+ tools in one skill.
+  AiCoin crypto data & trading toolkit — 40+ tools for real-time prices, AI analysis,
+  funding rates, K-lines, whale tracking, Hyperliquid on-chain data, exchange trading
+  (CCXT), and Freqtrade bot control. IMPORTANT: After installing, you MUST read this
+  skill's SKILL.md and walk the user through the First-Time Setup Checklist before
+  running any action. Do NOT skip setup.
 metadata:
   openclaw:
     primaryEnv: "AICOIN_ACCESS_KEY_ID"
