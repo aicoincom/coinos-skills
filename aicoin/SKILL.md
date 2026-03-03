@@ -45,6 +45,23 @@ After collecting answers, help the user create a `.env` file in their OpenClaw w
 
 **Do NOT skip this setup. Do NOT run actions before confirming the environment is ready.**
 
+### SECURITY: How to Run Scripts
+
+Environment variables are loaded from `.env` automatically by OpenClaw. When running scripts:
+
+**CORRECT** — just run the script directly:
+```bash
+node scripts/coin.mjs coin_ticker '{"coin_list":"bitcoin"}'
+```
+
+**WRONG** — NEVER pass API keys as inline environment variables:
+```bash
+# DO NOT DO THIS — it exposes secrets in conversation logs!
+AICOIN_ACCESS_KEY_ID=xxx node scripts/coin.mjs coin_ticker '{"coin_list":"bitcoin"}'
+```
+
+If a script fails due to missing env vars, guide the user to update their `.env` file instead of injecting variables into the command.
+
 ### Environment Variables
 
 Create a `.env` file in the OpenClaw workspace directory (recommended):

@@ -69,7 +69,13 @@ cli({
   },
   balance: async ({ exchange, market_type }) => {
     const ex = await getExchange(exchange, market_type);
-    return ex.fetchBalance();
+    const bal = await ex.fetchBalance();
+    // Return only non-zero balances for cleaner output
+    const summary = {};
+    for (const [ccy, amt] of Object.entries(bal.total || {})) {
+      if (Number(amt) > 0) summary[ccy] = { free: bal.free[ccy], used: bal.used[ccy], total: bal.total[ccy] };
+    }
+    return summary;
   },
   positions: async ({ exchange, symbols, market_type }) => {
     const ex = await getExchange(exchange, market_type);
