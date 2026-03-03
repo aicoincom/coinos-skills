@@ -19,14 +19,29 @@ metadata:
 
 Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/opendata).
 
-## First-Time Setup
+## IMPORTANT: First-Time Setup Checklist
 
-After installing this skill, **you must ask the user** about their environment before running any action:
+**Before running ANY action from this skill, you MUST ask the user the following questions:**
 
-1. **AiCoin API key** — Required for all data queries. A built-in free key is available (IP rate-limited), but users can get their own at https://www.aicoin.com/opendata for higher limits.
-2. **Exchange trading** — Does the user need CCXT exchange trading (Binance, OKX, etc.)? If yes, ccxt must be installed and exchange API keys configured.
-3. **Freqtrade** — Does the user need Freqtrade bot control? If yes, Freqtrade credentials are needed.
-4. **Proxy** — Does the user need a proxy to access exchanges? If yes, set `HTTPS_PROXY`.
+1. "Do you have an AiCoin API key, or would you like to use the free built-in key (IP rate-limited)?"
+   - If yes → ask them to provide `AICOIN_ACCESS_KEY_ID` and `AICOIN_ACCESS_SECRET`
+   - If no → the built-in free key will be used automatically
+
+2. "Do you need exchange trading features (Binance, OKX, Bybit, etc.)?"
+   - If yes → tell them to run `npm install -g ccxt`, then ask for their exchange API keys
+   - If no → skip exchange-related setup
+
+3. "Do you need Freqtrade bot control?"
+   - If yes → ask for `FREQTRADE_URL`, `FREQTRADE_USERNAME`, `FREQTRADE_PASSWORD`
+   - If no → skip Freqtrade setup
+
+4. "Do you need a proxy to access exchanges? (e.g. users in China)"
+   - If yes → ask for proxy URL (supports http, https, socks5)
+   - If no → skip proxy setup
+
+After collecting answers, help the user create a `.env` file in their OpenClaw workspace directory with the required variables. Only include the variables they actually need.
+
+**Do NOT skip this setup. Do NOT run actions before confirming the environment is ready.**
 
 ### Environment Variables
 
