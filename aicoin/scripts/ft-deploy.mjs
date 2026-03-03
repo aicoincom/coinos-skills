@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Freqtrade One-Click Deployment via pip + venv (no Docker)
+// Auto-installs system dependencies (TA-Lib, HDF5) based on platform
 // Reads exchange keys from .env, creates config, starts as background process
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -46,6 +47,95 @@ const FT_BIN = resolve(VENV_DIR, 'bin', 'freqtrade');
 function run(cmd, opts = {}) {
   return execSync(cmd, { encoding: 'utf-8', timeout: 600000, ...opts }).trim();
 }
+
+function hasCommand(cmd) {
+  try { run(`which ${cmd}`); return true; } catch { return false; }
+}
+
+// ─── System dependency management ───
+
+function hasTALib() {
+  try {
+    if (process.platform === 'darwin') {
+      run('brew list ta-lib 2>/dev/null');
+      return true;
+    } else {
+      // Check for shared library on Linux
+      run('test -f /usr/local/lib/libta_lib.so -o -f /usr/lib/libta_lib.so -o -f /usr/lib/x86_64-linux-gnu/libta_lib.so');
+      return true;
+    }
+  } catch {
+    // Also check ldconfig
+    try { run('ldconfig -p 2>/dev/null | grep libta_lib'); return true; } catch {}
+    return false;
+  }
+}
+
+function installSystemDeps() {
+  const platform = process.platform; // 'darwin' or 'linux'
+
+  if (platform === 'darwin') {
+    // macOS — use Homebrew
+    if (!hasCommand('brew')) {
+      throw new Error('Homebrew not found. Install: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"');
+    }
+    if (!hasTALib()) {
+      console.error('Installing TA-Lib and HDF5 via Homebrew...');
+      try {
+        run('brew install ta-lib hdf5', { timeout: 300000 });
+      } catch (e) {
+        throw new Error(`Failed to install system deps via Homebrew: ${e.message}\nManual fix: brew install ta-lib hdf5`);
+      }
+    }
+  } else if (platform === 'linux') {
+    // Linux — use apt + compile TA-Lib from source if needed
+    const sudo = hasCommand('sudo') ? 'sudo ' : '';
+    try {
+      console.error('Installing build dependencies...');
+      run(`${sudo}apt-get update -qq && ${sudo}apt-get install -y -qq build-essential python3-dev python3-venv python3-pip wget libhdf5-dev`, { timeout: 120000 });
+    } catch {
+      console.error('Warning: apt-get failed. Some build packages may be missing. Continuing...');
+    }
+
+    if (!hasTALib()) {
+      // Try apt package first
+      try {
+        run(`${sudo}apt-get install -y -qq libta-lib-dev`, { timeout: 60000 });
+      } catch {
+        // Compile TA-Lib from source
+        console.error('Compiling TA-Lib from source (this may take 1-2 minutes)...');
+        try {
+          run([
+            'cd /tmp',
+            'wget -q https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz',
+            'tar xzf ta-lib-0.4.0-src.tar.gz',
+            'cd ta-lib',
+            './configure --prefix=/usr/local',
+            `make -j$(nproc 2>/dev/null || echo 2)`,
+            `${sudo}make install`,
+          ].join(' && '), { timeout: 600000 });
+          try { run(`${sudo}ldconfig`); } catch {}
+        } catch (e) {
+          throw new Error(`Failed to install TA-Lib from source: ${e.message}\nManual install: https://github.com/TA-Lib/ta-lib-python#dependencies`);
+        }
+      }
+    }
+  }
+}
+
+function checkSystemDeps() {
+  const deps = {};
+  deps.ta_lib = hasTALib();
+  if (process.platform === 'darwin') {
+    try { run('brew list hdf5 2>/dev/null'); deps.hdf5 = true; } catch { deps.hdf5 = false; }
+  } else {
+    try { run('dpkg -l libhdf5-dev 2>/dev/null | grep -q "^ii"'); deps.hdf5 = true; } catch { deps.hdf5 = false; }
+  }
+  deps.all_ok = deps.ta_lib && deps.hdf5;
+  return deps;
+}
+
+// ─── Exchange & config ───
 
 function detectExchange() {
   const exchanges = ['BINANCE', 'OKX', 'BYBIT', 'BITGET', 'GATE', 'HTX', 'KUCOIN', 'MEXC'];
@@ -141,6 +231,8 @@ const actions = {
     try { checks.python = run('python3 --version'); } catch { checks.python = false; }
     // pip
     try { checks.pip = run('python3 -m pip --version').split(' ')[1]; } catch { checks.pip = false; }
+    // System dependencies (TA-Lib, HDF5)
+    checks.system_deps = checkSystemDeps();
     // Freqtrade installed
     checks.freqtrade_installed = existsSync(FT_BIN);
     // Exchange keys
@@ -156,6 +248,9 @@ const actions = {
       checks.missing = [];
       if (!checks.python) checks.missing.push('Python 3 not found. Install: apt install python3 python3-venv python3-pip');
       if (!checks.exchange?.configured) checks.missing.push('No exchange API keys in .env');
+    }
+    if (!checks.system_deps.all_ok) {
+      checks.note = 'System dependencies (TA-Lib, HDF5) not found. They will be auto-installed during deploy.';
     }
     return checks;
   },
@@ -173,34 +268,38 @@ const actions = {
     // 3. Create directories
     mkdirSync(STRAT_DIR, { recursive: true });
 
-    // 4. Create venv + install freqtrade (if not already installed)
+    // 4. Install system dependencies (TA-Lib, HDF5) if missing
+    console.error('Checking system dependencies...');
+    installSystemDeps();
+
+    // 5. Create venv + install freqtrade (if not already installed)
     if (!existsSync(FT_BIN)) {
       console.error('Creating Python venv and installing Freqtrade (this may take a few minutes)...');
       run(`python3 -m venv ${VENV_DIR}`);
-      run(`${resolve(VENV_DIR, 'bin', 'pip')} install --upgrade pip wheel`);
-      run(`${resolve(VENV_DIR, 'bin', 'pip')} install freqtrade`);
+      run(`${resolve(VENV_DIR, 'bin', 'pip')} install --upgrade pip wheel`, { timeout: 120000 });
+      run(`${resolve(VENV_DIR, 'bin', 'pip')} install freqtrade`, { timeout: 600000 });
     }
 
-    // 5. Generate config
+    // 6. Generate config
     const apiPassword = randomBytes(8).toString('hex');
     const config = generateConfig(exchangeInfo, apiPassword, params);
     writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
 
-    // 6. Create sample strategy if none exists
+    // 7. Create sample strategy if none exists
     const samplePath = resolve(STRAT_DIR, 'SampleStrategy.py');
     if (!existsSync(samplePath)) {
       writeFileSync(samplePath, SAMPLE_STRATEGY);
     }
 
-    // 7. Stop existing process
+    // 8. Stop existing process
     const oldPid = getPid();
     if (oldPid) { try { process.kill(oldPid, 'SIGTERM'); } catch {} }
 
-    // 8. Start freqtrade as background process
+    // 9. Start freqtrade as background process
     const strategy = params.strategy || 'SampleStrategy';
     run(`nohup ${FT_BIN} trade --config ${CONFIG_PATH} --strategy ${strategy} --userdir ${USER_DATA} > ${LOG_FILE} 2>&1 & echo $! > ${PID_FILE}`);
 
-    // 9. Wait for startup
+    // 10. Wait for startup
     let ready = false;
     for (let i = 0; i < 15; i++) {
       await new Promise(r => setTimeout(r, 2000));
@@ -216,7 +315,7 @@ const actions = {
       }
     }
 
-    // 10. Write env vars
+    // 11. Write env vars
     appendEnv('FREQTRADE_URL', `http://127.0.0.1:${API_PORT}`);
     appendEnv('FREQTRADE_USERNAME', 'freqtrader');
     appendEnv('FREQTRADE_PASSWORD', apiPassword);
@@ -277,12 +376,12 @@ const actions = {
   },
 };
 
-// ─── Sample strategy ───
+// ─── Sample strategy (pure pandas, no TA-Lib dependency) ───
 
 const SAMPLE_STRATEGY = `# Sample RSI + EMA strategy for Freqtrade
+# Uses pure pandas — no TA-Lib C library required
 from freqtrade.strategy import IStrategy
 from pandas import DataFrame
-import talib.abstract as ta
 
 
 class SampleStrategy(IStrategy):
@@ -298,9 +397,16 @@ class SampleStrategy(IStrategy):
     trailing_stop_positive_offset = 0.02
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-        dataframe['rsi'] = ta.RSI(dataframe, timeperiod=14)
-        dataframe['ema_fast'] = ta.EMA(dataframe, timeperiod=8)
-        dataframe['ema_slow'] = ta.EMA(dataframe, timeperiod=21)
+        # RSI (pure pandas, no talib)
+        delta = dataframe['close'].diff()
+        gain = delta.clip(lower=0).rolling(window=14).mean()
+        loss = (-delta.clip(upper=0)).rolling(window=14).mean()
+        rs = gain / loss
+        dataframe['rsi'] = 100 - (100 / (1 + rs))
+
+        # EMA (pure pandas)
+        dataframe['ema_fast'] = dataframe['close'].ewm(span=8, adjust=False).mean()
+        dataframe['ema_slow'] = dataframe['close'].ewm(span=21, adjust=False).mean()
         return dataframe
 
     def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
