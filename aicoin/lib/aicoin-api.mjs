@@ -1,10 +1,16 @@
 #!/usr/bin/env node
 // AiCoin API client with HMAC signing - shared lib
 import { createHmac, randomBytes } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const defaults = JSON.parse(readFileSync(resolve(__dirname, 'defaults.json'), 'utf-8'));
 
 const BASE = process.env.AICOIN_BASE_URL || 'https://open.aicoin.com';
-const KEY = process.env.AICOIN_ACCESS_KEY_ID || 'ronJ8uI0Yj2soAfGVs5H1YALUIINbE22';
-const SECRET = process.env.AICOIN_ACCESS_SECRET || 'CWHZcH2us1CLSE7grroR1TpS0Z1JxTwU';
+const KEY = process.env.AICOIN_ACCESS_KEY_ID || defaults.accessKeyId;
+const SECRET = process.env.AICOIN_ACCESS_SECRET || defaults.accessSecret;
 
 function sign() {
   const nonce = randomBytes(4).toString('hex');
