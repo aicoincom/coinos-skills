@@ -19,11 +19,21 @@ async function getExchange(id, marketType, skipAuth = false) {
     opts.secret = process.env[`${pre}_API_SECRET`];
     if (process.env[`${pre}_PASSWORD`]) opts.password = process.env[`${pre}_PASSWORD`];
   }
-  // Proxy support: HTTPS_PROXY / HTTP_PROXY / ALL_PROXY
-  const proxy = process.env.HTTPS_PROXY || process.env.https_proxy
+  // Proxy support: PROXY_URL (MCP-compatible) or HTTPS_PROXY/HTTP_PROXY
+  const proxyUrl = process.env.PROXY_URL
+    || process.env.HTTPS_PROXY || process.env.https_proxy
     || process.env.HTTP_PROXY || process.env.http_proxy
     || process.env.ALL_PROXY || process.env.all_proxy;
-  if (proxy) opts.httpsProxy = proxy;
+  if (proxyUrl) {
+    if (proxyUrl.startsWith('socks')) {
+      let socksUrl = proxyUrl;
+      if (socksUrl.startsWith('socks5://')) socksUrl = socksUrl.replace('socks5://', 'socks5h://');
+      else if (socksUrl.startsWith('socks4://')) socksUrl = socksUrl.replace('socks4://', 'socks4a://');
+      opts.socksProxy = socksUrl;
+    } else {
+      opts.httpsProxy = proxyUrl;
+    }
+  }
   if (marketType && marketType !== 'spot') opts.options = { defaultType: marketType };
   const Ex = ccxt.default?.[id] || ccxt[id];
   return new Ex(opts);

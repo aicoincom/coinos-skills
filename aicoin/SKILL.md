@@ -44,7 +44,9 @@ BINANCE_API_SECRET=xxx
 # For OKX also set OKX_PASSWORD=xxx
 
 # Proxy for exchange access — only if needed
-HTTPS_PROXY=http://127.0.0.1:7890
+# Supports http, https, socks5, socks4
+PROXY_URL=socks5://127.0.0.1:7890
+# Or standard env vars: HTTPS_PROXY=http://127.0.0.1:7890
 
 # Freqtrade — only if needed
 FREQTRADE_URL=http://localhost:8080
