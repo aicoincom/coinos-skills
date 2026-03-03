@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Freqtrade One-Click Deployment via Docker
-// Reads exchange keys from .env, creates config, starts container, auto-sets FREQTRADE_* env
+// Freqtrade One-Click Deployment via pip + venv (no Docker)
+// Reads exchange keys from .env, creates config, starts as background process
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { execSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 
-// Load .env (same as other scripts)
+// Load .env
 function loadEnv() {
   const candidates = [
     resolve(process.cwd(), '.env'),
@@ -32,16 +32,22 @@ function loadEnv() {
 loadEnv();
 
 const FT_DIR = resolve(process.env.HOME || '', '.freqtrade');
-const CONTAINER_NAME = 'freqtrade-bot';
+const VENV_DIR = resolve(FT_DIR, 'venv');
+const USER_DATA = resolve(FT_DIR, 'user_data');
+const STRAT_DIR = resolve(USER_DATA, 'strategies');
+const CONFIG_PATH = resolve(USER_DATA, 'config.json');
+const PID_FILE = resolve(FT_DIR, 'freqtrade.pid');
+const LOG_FILE = resolve(FT_DIR, 'freqtrade.log');
 const API_PORT = process.env.FREQTRADE_PORT || '8080';
 const ENV_FILE = resolve(process.env.HOME || '', '.openclaw', 'workspace', '.env');
 
+const FT_BIN = resolve(VENV_DIR, 'bin', 'freqtrade');
+
 function run(cmd, opts = {}) {
-  return execSync(cmd, { encoding: 'utf-8', timeout: 120000, ...opts }).trim();
+  return execSync(cmd, { encoding: 'utf-8', timeout: 600000, ...opts }).trim();
 }
 
 function detectExchange() {
-  // Check which exchange keys are available
   const exchanges = ['BINANCE', 'OKX', 'BYBIT', 'BITGET', 'GATE', 'HTX', 'KUCOIN', 'MEXC'];
   for (const ex of exchanges) {
     if (process.env[`${ex}_API_KEY`] && process.env[`${ex}_API_SECRET`]) {
@@ -64,7 +70,7 @@ function generateConfig(exchangeInfo, apiPassword, params = {}) {
     stake_currency: 'USDT',
     stake_amount: params.stake_amount || 'unlimited',
     tradable_balance_ratio: params.tradable_balance_ratio || 0.5,
-    dry_run: params.dry_run !== false, // default to dry-run for safety
+    dry_run: params.dry_run !== false,
     dry_run_wallet: 1000,
     cancel_open_orders_on_exit: false,
     exchange: {
@@ -77,13 +83,13 @@ function generateConfig(exchangeInfo, apiPassword, params = {}) {
       pair_whitelist: params.pairs || ['BTC/USDT:USDT', 'ETH/USDT:USDT'],
       pair_blacklist: [],
     },
+    pairlists: [{ method: 'StaticPairList' }],
     entry_pricing: { price_side: 'same', use_order_book: true, order_book_top: 1 },
     exit_pricing: { price_side: 'same', use_order_book: true, order_book_top: 1 },
-    pairlists: [{ method: 'StaticPairList' }],
     api_server: {
       enabled: true,
-      listen_ip_address: '0.0.0.0',
-      listen_port: 8080,
+      listen_ip_address: '127.0.0.1',
+      listen_port: Number(API_PORT),
       verbosity: 'error',
       enable_openapi: false,
       jwt_secret_key: randomBytes(16).toString('hex'),
@@ -96,13 +102,10 @@ function generateConfig(exchangeInfo, apiPassword, params = {}) {
     force_entry_enable: true,
     internals: { process_throttle_secs: 5 },
   };
-
-  // Proxy support
   const proxyUrl = process.env.PROXY_URL || process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
   if (proxyUrl) {
     config.exchange.ccxt_config.proxies = { https: proxyUrl, http: proxyUrl };
   }
-
   return config;
 }
 
@@ -122,188 +125,173 @@ function appendEnv(key, val) {
   }
 }
 
+function getPid() {
+  if (!existsSync(PID_FILE)) return null;
+  const pid = readFileSync(PID_FILE, 'utf-8').trim();
+  if (!pid) return null;
+  try { process.kill(Number(pid), 0); return Number(pid); } catch { return null; }
+}
+
 // ─── Actions ───
 
 const actions = {
-  // Check prerequisites
   check: async () => {
     const checks = {};
-
-    // Docker
-    try { run('docker --version'); checks.docker = true; } catch { checks.docker = false; }
-
+    // Python
+    try { checks.python = run('python3 --version'); } catch { checks.python = false; }
+    // pip
+    try { checks.pip = run('python3 -m pip --version').split(' ')[1]; } catch { checks.pip = false; }
+    // Freqtrade installed
+    checks.freqtrade_installed = existsSync(FT_BIN);
     // Exchange keys
     const ex = detectExchange();
     checks.exchange = ex ? { name: ex.name, configured: true } : { configured: false };
+    // Running
+    const pid = getPid();
+    checks.running = !!pid;
+    if (pid) checks.pid = pid;
 
-    // Existing deployment
-    try {
-      const state = run(`docker inspect -f '{{.State.Status}}' ${CONTAINER_NAME} 2>/dev/null`);
-      checks.freqtrade = { deployed: true, status: state };
-    } catch {
-      checks.freqtrade = { deployed: false };
-    }
-
-    checks.ready = checks.docker && checks.exchange?.configured;
+    checks.ready = !!checks.python && checks.exchange?.configured;
     if (!checks.ready) {
       checks.missing = [];
-      if (!checks.docker) checks.missing.push('Docker not installed. Install: https://docs.docker.com/get-docker/');
-      if (!checks.exchange?.configured) checks.missing.push('No exchange API keys in .env. Add e.g. OKX_API_KEY, OKX_API_SECRET, OKX_PASSWORD');
+      if (!checks.python) checks.missing.push('Python 3 not found. Install: apt install python3 python3-venv python3-pip');
+      if (!checks.exchange?.configured) checks.missing.push('No exchange API keys in .env');
     }
     return checks;
   },
 
-  // Full deployment
   deploy: async (params = {}) => {
-    // 1. Check Docker
-    try { run('docker --version'); } catch {
-      throw new Error('Docker not installed. Install from https://docs.docker.com/get-docker/');
+    // 1. Check Python
+    try { run('python3 --version'); } catch {
+      throw new Error('Python 3 not found. Install: apt install python3 python3-venv python3-pip');
     }
 
     // 2. Detect exchange
     const exchangeInfo = detectExchange();
-    if (!exchangeInfo) {
-      throw new Error('No exchange API keys found in .env. Configure e.g. OKX_API_KEY, OKX_API_SECRET first.');
-    }
+    if (!exchangeInfo) throw new Error('No exchange API keys found in .env');
 
     // 3. Create directories
-    const userDataDir = resolve(FT_DIR, 'user_data');
-    const stratDir = resolve(userDataDir, 'strategies');
-    mkdirSync(stratDir, { recursive: true });
+    mkdirSync(STRAT_DIR, { recursive: true });
 
-    // 4. Generate API password and config
+    // 4. Create venv + install freqtrade (if not already installed)
+    if (!existsSync(FT_BIN)) {
+      console.error('Creating Python venv and installing Freqtrade (this may take a few minutes)...');
+      run(`python3 -m venv ${VENV_DIR}`);
+      run(`${resolve(VENV_DIR, 'bin', 'pip')} install --upgrade pip wheel`);
+      run(`${resolve(VENV_DIR, 'bin', 'pip')} install freqtrade`);
+    }
+
+    // 5. Generate config
     const apiPassword = randomBytes(8).toString('hex');
     const config = generateConfig(exchangeInfo, apiPassword, params);
-    const configPath = resolve(userDataDir, 'config.json');
-    writeFileSync(configPath, JSON.stringify(config, null, 2));
+    writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
 
-    // 5. Create a sample strategy if none exists
-    const samplePath = resolve(stratDir, 'SampleStrategy.py');
+    // 6. Create sample strategy if none exists
+    const samplePath = resolve(STRAT_DIR, 'SampleStrategy.py');
     if (!existsSync(samplePath)) {
       writeFileSync(samplePath, SAMPLE_STRATEGY);
     }
 
-    // 6. Stop existing container if any
-    try { run(`docker stop ${CONTAINER_NAME} 2>/dev/null`); } catch {}
-    try { run(`docker rm ${CONTAINER_NAME} 2>/dev/null`); } catch {}
+    // 7. Stop existing process
+    const oldPid = getPid();
+    if (oldPid) { try { process.kill(oldPid, 'SIGTERM'); } catch {} }
 
-    // 7. Pull latest image
-    run('docker pull freqtradeorg/freqtrade:stable', { timeout: 300000 });
-
-    // 8. Start container
+    // 8. Start freqtrade as background process
     const strategy = params.strategy || 'SampleStrategy';
-    run([
-      'docker run -d',
-      `--name ${CONTAINER_NAME}`,
-      `-v ${userDataDir}:/freqtrade/user_data`,
-      `-p ${API_PORT}:8080`,
-      '--restart unless-stopped',
-      'freqtradeorg/freqtrade:stable',
-      'trade',
-      '--config /freqtrade/user_data/config.json',
-      `--strategy ${strategy}`,
-    ].join(' '));
+    run(`nohup ${FT_BIN} trade --config ${CONFIG_PATH} --strategy ${strategy} --userdir ${USER_DATA} > ${LOG_FILE} 2>&1 & echo $! > ${PID_FILE}`);
 
-    // 9. Write env vars
-    appendEnv('FREQTRADE_URL', `http://localhost:${API_PORT}`);
+    // 9. Wait for startup
+    let ready = false;
+    for (let i = 0; i < 15; i++) {
+      await new Promise(r => setTimeout(r, 2000));
+      const pid = getPid();
+      if (pid) {
+        try {
+          const res = await fetch(`http://127.0.0.1:${API_PORT}/api/v1/ping`, {
+            headers: { Authorization: 'Basic ' + Buffer.from(`freqtrader:${apiPassword}`).toString('base64') },
+            signal: AbortSignal.timeout(3000),
+          });
+          if (res.ok) { ready = true; break; }
+        } catch {}
+      }
+    }
+
+    // 10. Write env vars
+    appendEnv('FREQTRADE_URL', `http://127.0.0.1:${API_PORT}`);
     appendEnv('FREQTRADE_USERNAME', 'freqtrader');
     appendEnv('FREQTRADE_PASSWORD', apiPassword);
 
-    // 10. Wait for startup
-    let ready = false;
-    for (let i = 0; i < 10; i++) {
-      try {
-        await new Promise(r => setTimeout(r, 2000));
-        const state = run(`docker inspect -f '{{.State.Status}}' ${CONTAINER_NAME}`);
-        if (state === 'running') { ready = true; break; }
-      } catch {}
-    }
-
     return {
       success: true,
-      container: CONTAINER_NAME,
       exchange: exchangeInfo.name,
       strategy,
       dry_run: config.dry_run,
       pairs: config.exchange.pair_whitelist,
-      api_url: `http://localhost:${API_PORT}`,
-      api_username: 'freqtrader',
+      api_url: `http://127.0.0.1:${API_PORT}`,
       api_password: apiPassword,
-      config_path: configPath,
-      strategies_dir: stratDir,
-      container_running: ready,
+      pid: getPid(),
+      ready,
+      log_file: LOG_FILE,
+      config_path: CONFIG_PATH,
+      strategies_dir: STRAT_DIR,
       note: config.dry_run
         ? 'Running in DRY-RUN mode (no real money). Use deploy with {"dry_run":false} for live trading.'
         : 'WARNING: Running in LIVE mode with real money!',
     };
   },
 
-  // Check status
   status: async () => {
-    try {
-      const state = run(`docker inspect -f '{{.State.Status}}' ${CONTAINER_NAME}`);
-      const logs = run(`docker logs --tail 5 ${CONTAINER_NAME} 2>&1`);
-      return { running: state === 'running', state, last_logs: logs };
-    } catch {
-      return { running: false, state: 'not deployed' };
-    }
+    const pid = getPid();
+    if (!pid) return { running: false };
+    let lastLogs = '';
+    try { lastLogs = run(`tail -5 ${LOG_FILE} 2>/dev/null`); } catch {}
+    return { running: true, pid, log_file: LOG_FILE, last_logs: lastLogs };
   },
 
-  // Stop
   stop: async () => {
-    try {
-      run(`docker stop ${CONTAINER_NAME}`);
-      return { stopped: true };
-    } catch (e) {
-      return { stopped: false, error: e.message };
-    }
+    const pid = getPid();
+    if (!pid) return { stopped: false, reason: 'Not running' };
+    try { process.kill(pid, 'SIGTERM'); } catch {}
+    try { writeFileSync(PID_FILE, ''); } catch {}
+    return { stopped: true, pid };
   },
 
-  // Start (restart stopped container)
-  start: async () => {
-    try {
-      run(`docker start ${CONTAINER_NAME}`);
-      return { started: true };
-    } catch (e) {
-      return { started: false, error: e.message };
-    }
+  start: async (params = {}) => {
+    if (getPid()) return { started: false, reason: 'Already running' };
+    if (!existsSync(CONFIG_PATH)) throw new Error('No config found. Run deploy first.');
+    const strategy = params.strategy || 'SampleStrategy';
+    run(`nohup ${FT_BIN} trade --config ${CONFIG_PATH} --strategy ${strategy} --userdir ${USER_DATA} > ${LOG_FILE} 2>&1 & echo $! > ${PID_FILE}`);
+    await new Promise(r => setTimeout(r, 3000));
+    return { started: true, pid: getPid() };
   },
 
-  // View logs
   logs: async ({ lines = 50 } = {}) => {
-    try {
-      return { logs: run(`docker logs --tail ${lines} ${CONTAINER_NAME} 2>&1`) };
-    } catch (e) {
-      return { error: e.message };
-    }
+    try { return { logs: run(`tail -${lines} ${LOG_FILE} 2>/dev/null`) }; } catch { return { logs: 'No log file found' }; }
   },
 
-  // Remove deployment
   remove: async () => {
-    try { run(`docker stop ${CONTAINER_NAME} 2>/dev/null`); } catch {}
-    try { run(`docker rm ${CONTAINER_NAME} 2>/dev/null`); } catch {}
-    return { removed: true, note: 'Container removed. Config and strategies preserved at ~/.freqtrade/' };
+    const pid = getPid();
+    if (pid) { try { process.kill(pid, 'SIGTERM'); } catch {} }
+    try { writeFileSync(PID_FILE, ''); } catch {}
+    return { removed: true, note: `Process stopped. Config preserved at ${FT_DIR}. To fully remove: rm -rf ${FT_DIR}` };
   },
 };
 
 // ─── Sample strategy ───
 
-const SAMPLE_STRATEGY = `
-# Sample strategy for Freqtrade
-# Simple RSI + EMA crossover strategy
+const SAMPLE_STRATEGY = `# Sample RSI + EMA strategy for Freqtrade
 from freqtrade.strategy import IStrategy
 from pandas import DataFrame
 import talib.abstract as ta
+
 
 class SampleStrategy(IStrategy):
     INTERFACE_VERSION = 3
     timeframe = '5m'
     can_short = True
 
-    # ROI table
     minimal_roi = {"0": 0.05, "30": 0.03, "60": 0.02, "120": 0.01}
 
-    # Stoploss
     stoploss = -0.03
     trailing_stop = True
     trailing_stop_positive = 0.01
@@ -316,13 +304,11 @@ class SampleStrategy(IStrategy):
         return dataframe
 
     def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-        # Long entry
         dataframe.loc[
             (dataframe['rsi'] < 35) &
             (dataframe['ema_fast'] > dataframe['ema_slow']) &
             (dataframe['volume'] > 0),
             'enter_long'] = 1
-        # Short entry
         dataframe.loc[
             (dataframe['rsi'] > 65) &
             (dataframe['ema_fast'] < dataframe['ema_slow']) &
@@ -338,18 +324,16 @@ class SampleStrategy(IStrategy):
             (dataframe['rsi'] < 30),
             'exit_short'] = 1
         return dataframe
-`.trim() + '\n';
+`;
 
 // ─── CLI ───
 
 const [action, ...rest] = process.argv.slice(2);
 if (!action || !actions[action]) {
-  console.log(`Usage: node ft-deploy.mjs <action> [json-params]
-Actions: ${Object.keys(actions).join(', ')}`);
+  console.log(`Usage: node ft-deploy.mjs <action> [json-params]\nActions: ${Object.keys(actions).join(', ')}`);
   process.exit(1);
 }
 const params = rest.length ? JSON.parse(rest.join(' ')) : {};
 actions[action](params).then(r => console.log(JSON.stringify(r, null, 2))).catch(e => {
-  console.error(e.message);
-  process.exit(1);
+  console.error(e.message); process.exit(1);
 });

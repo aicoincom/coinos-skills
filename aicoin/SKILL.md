@@ -44,7 +44,7 @@ grep -c "AICOIN_ACCESS_KEY_ID" ~/.openclaw/workspace/.env 2>/dev/null || echo "0
 
 **Only ask setup questions when the user explicitly requests features that need configuration:**
 - Exchange trading (Binance, OKX, etc.) → needs exchange API keys + `cd <skill-dir>/aicoin && npm install` for ccxt
-- Freqtrade bot → run `ft-deploy.mjs deploy` (auto-configures everything, needs Docker + exchange keys in .env)
+- Freqtrade bot → run `ft-deploy.mjs deploy` (auto-configures everything, needs Python 3 + exchange keys in .env)
 - Proxy access → needs `PROXY_URL`
 
 **Do NOT block the user from running commands. The skill works out of the box with the built-in free key.**
@@ -490,13 +490,13 @@ The `open` action automatically:
 
 ### scripts/ft-deploy.mjs — Freqtrade Deployment
 
-**One-click Freqtrade deployment via Docker.** Reads exchange keys from `.env`, generates config, starts container, auto-writes `FREQTRADE_*` vars to `.env`.
+**One-click Freqtrade deployment via pip + venv (no Docker needed).** Reads exchange keys from `.env`, creates Python venv, installs Freqtrade, generates config, starts as background process, auto-writes `FREQTRADE_*` vars to `.env`.
 
 | Action | Description | Params |
 |--------|-------------|--------|
-| `check` | Check prerequisites (Docker, exchange keys) | None |
-| `deploy` | Deploy Freqtrade (pull image, create config, start) | `{"dry_run":true,"pairs":["BTC/USDT:USDT","ETH/USDT:USDT"]}` |
-| `status` | Container status | None |
+| `check` | Check prerequisites (Python, exchange keys) | None |
+| `deploy` | Deploy Freqtrade (create venv, pip install, start) | `{"dry_run":true,"pairs":["BTC/USDT:USDT","ETH/USDT:USDT"]}` |
+| `status` | Process status | None |
 | `start` | Start stopped container | None |
 | `stop` | Stop container | None |
 | `logs` | View container logs | `{"lines":50}` |
@@ -569,14 +569,15 @@ node scripts/ft-deploy.mjs deploy '{"pairs":["BTC/USDT:USDT","ETH/USDT:USDT"]}'
 ```
 
 This automatically:
-1. Pulls Freqtrade Docker image
-2. Creates config from exchange keys in `.env`
-3. Includes a sample RSI+EMA strategy
-4. Starts the container with API server
-5. Writes `FREQTRADE_URL`, `FREQTRADE_USERNAME`, `FREQTRADE_PASSWORD` to `.env`
-6. Ready to use via `ft.mjs` and `ft-dev.mjs`
+1. Creates a Python venv at `~/.freqtrade/venv`
+2. Installs Freqtrade via pip
+3. Creates config from exchange keys in `.env`
+4. Includes a sample RSI+EMA strategy
+5. Starts Freqtrade as a background process with API server
+6. Writes `FREQTRADE_URL`, `FREQTRADE_USERNAME`, `FREQTRADE_PASSWORD` to `.env`
+7. Ready to use via `ft.mjs` and `ft-dev.mjs`
 
-**Prerequisites:** Docker must be installed. Exchange API keys must be in `.env`.
+**Prerequisites:** Python 3 with venv and pip. Exchange API keys must be in `.env`.
 
 ### User Journey
 
