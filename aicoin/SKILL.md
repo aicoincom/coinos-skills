@@ -8,7 +8,7 @@ metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "b
 
 Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/opendata).
 
-**Version:** 1.5.14 | **Last Updated:** 2026-03-04
+**Version:** 1.5.15 | **Last Updated:** 2026-03-04
 
 ## Quick Reference — Most Common Commands
 
@@ -54,6 +54,7 @@ Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.co
 - Include units (USDT, BTC, %) and directions (📈/📉) for clarity
 - For analysis: show data first, then interpretation
 - Keep responses concise - users can ask for details if needed
+- Always fetch fresh data - NEVER use cached or memorized prices
 
 ## Setup Checklist
 
