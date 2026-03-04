@@ -1,25 +1,7 @@
 ---
 name: aicoin
-description: >
-  Use this skill when the user asks to buy, sell, or trade crypto on exchanges like
-  Binance, OKX, Bybit, Bitget, Gate, HTX, KuCoin, MEXC, or Coinbase — spot or futures,
-  place orders, check balance, set leverage, view positions, or cancel orders.
-  Also use when the user asks for crypto market data: real-time prices, K-lines, funding
-  rates, open interest, liquidation data, whale tracking, AI analysis, order flow, news,
-  Twitter/X crypto tweets, Hyperliquid on-chain data, or Freqtrade bot control.
-  Also use when the user asks to set up automated trading, deploy Freqtrade, backtest
-  strategies, or control a trading bot.
-  Scripts auto-load .env — just run them directly. If a script fails due to missing
-  credentials, guide the user through the Setup Checklist in SKILL.md.
-metadata:
-  openclaw:
-    primaryEnv: "AICOIN_ACCESS_KEY_ID"
-    requires:
-      bins:
-        - "node"
-    homepage: "https://www.aicoin.com/opendata"
-    source: "https://github.com/aicoincom/aicoin-skills"
-    license: "MIT"
+description: "Use this skill when the user asks about crypto prices, trading, exchanges (Binance, OKX, Bybit, Bitget, Gate, HTX, KuCoin, MEXC, Coinbase), spot or futures orders, balance, leverage, positions, K-lines, funding rates, open interest, liquidation, whale tracking, news, Hyperliquid, Freqtrade, or automated trading."
+metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "bins": ["node"] }, "homepage": "https://www.aicoin.com/opendata", "source": "https://github.com/aicoincom/aicoin-skills", "license": "MIT" } }
 ---
 
 # AiCoin
