@@ -6,7 +6,7 @@ description: >
   place orders, check balance, set leverage, view positions, or cancel orders.
   Also use when the user asks for crypto market data: real-time prices, K-lines, funding
   rates, open interest, liquidation data, whale tracking, AI analysis, order flow, news,
-  Hyperliquid on-chain data, or Freqtrade bot control.
+  Twitter/X crypto tweets, Hyperliquid on-chain data, or Freqtrade bot control.
   Also use when the user asks to set up automated trading, deploy Freqtrade, backtest
   strategies, or control a trading bot.
   Scripts auto-load .env — just run them directly. If a script fails due to missing
@@ -225,6 +225,17 @@ All scripts follow: `node scripts/<name>.mjs <action> [json-params]`
 | `newsflash` | AiCoin flash news | `{"language":"cn"}` |
 | `flash_list` | Industry flash news | `{"language":"cn"}` |
 | `exchange_listing` | Exchange listing announcements | `{"memberIds":"477,1509"}` (477=Binance, 1509=Bitget) |
+
+---
+
+### scripts/twitter.mjs — Twitter/X Crypto Tweets
+
+| Action | Description | Params |
+|--------|-------------|--------|
+| `latest` | Latest crypto tweets (cursor-paginated) | `{"language":"cn","page_size":"20","last_time":"1234567890"}` |
+| `search` | Search tweets by keyword | `{"keyword":"bitcoin","language":"cn","page_size":"20"}` |
+| `members` | Search Twitter KOL/users | `{"word":"elon","page":"1","size":"20"}` |
+| `interaction_stats` | Tweet engagement stats | `{"flash_ids":"123,456,789"}` (max 50 IDs) |
 
 ---
 
