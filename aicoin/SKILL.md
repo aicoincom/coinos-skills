@@ -8,7 +8,7 @@ metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "b
 
 Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/opendata).
 
-**Version:** 1.5.12 | **Last Updated:** 2026-03-04
+**Version:** 1.5.13 | **Last Updated:** 2026-03-04
 
 ## Quick Reference — Most Common Commands
 
@@ -40,6 +40,8 @@ Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.co
 | **Backtest** | `node scripts/ft-deploy.mjs backtest '{"strategy":"SampleStrategy","timerange":"20250101-"}'` ⚠️ MUST use this script |
 
 **Symbol shortcuts:** `BTC`, `ETH`, `SOL`, `DOGE`, `XRP` auto-resolve to AiCoin format (e.g. `btcswapusdt:binance`) in coin.mjs. For exchange.mjs, use CCXT format: `BTC/USDT`, `BTC/USDT:USDT` (swap).
+
+**Chinese Slang Recognition:** Understand common crypto slang: 大饼=BTC, 姨太=ETH, 狗狗=DOGE, 瑞波=XRP, 索拉纳=SOL, 做多=long, 做空=short, 爆仓=liquidation, 合约=futures/swap.
 
 **Common Errors & Solutions:**
 - `Error: Invalid symbol` → Check symbol format (AiCoin: `btcusdt:okex`, CCXT: `BTC/USDT`)
