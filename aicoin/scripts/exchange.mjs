@@ -187,9 +187,9 @@ cli({
       return await ex.transfer(code, amount, from, to);
     } catch (err) {
       const msg = err.message || String(err);
-      // Binance -1002: API key lacks Universal Transfer permission
-      if (exchange === 'binance' && msg.includes('-1002')) {
-        throw new Error(`Binance 划转失败 (错误 -1002): API Key 没有万向划转(Universal Transfer)权限。请在 Binance API 管理后台开启「Permits Universal Transfer」权限。原始错误: ${msg}`);
+      // Binance: API key lacks Universal Transfer permission
+      if (exchange === 'binance' && (msg.includes('-1002') || msg.includes('not authorized'))) {
+        throw new Error(`Binance 划转失败: API Key 没有万向划转(Universal Transfer)权限。请在 Binance API 管理后台开启「Permits Universal Transfer / 允许万向划转」权限。原始错误: ${msg}`);
       }
       throw err;
     }
