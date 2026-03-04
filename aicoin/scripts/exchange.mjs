@@ -157,7 +157,7 @@ cli({
       const mkt = ex.markets[symbol];
       const preview = {
         _preview: true,
-        _message: '⚠️ Order NOT placed. Set confirmed=true to execute.',
+        _message: '⚠️ Order NOT placed. Show this preview to the user and wait for their explicit confirmation (e.g. "确认" or "yes"). Then re-run with confirmed=true.',
         exchange, symbol, type, side, amount, price: price || 'market',
         market_type: market_type || 'spot',
       };

@@ -29,8 +29,7 @@ Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.co
 | **Balance** | `node scripts/exchange.mjs balance '{"exchange":"okx"}'` |
 | **Ticker** | `node scripts/exchange.mjs ticker '{"exchange":"binance","symbol":"BTC/USDT"}'` |
 | **Orderbook** | `node scripts/exchange.mjs orderbook '{"exchange":"binance","symbol":"BTC/USDT"}'` |
-| **Buy/Sell** | `node scripts/exchange.mjs create_order '{"exchange":"okx","symbol":"BTC/USDT","type":"market","side":"buy","amount":0.001}'` (returns preview) |
-| **Buy/Sell (confirmed)** | Add `"confirmed":"true"` to execute. MUST show preview to user first! |
+| **Buy/Sell** | `node scripts/exchange.mjs create_order '{"exchange":"okx","symbol":"BTC/USDT","type":"market","side":"buy","amount":0.001}'` → returns **preview only** |
 | **Positions** | `node scripts/exchange.mjs positions '{"exchange":"okx","market_type":"swap"}'` |
 | **Market list** | `node scripts/exchange.mjs markets '{"exchange":"binance","base":"BTC"}'` |
 
@@ -450,9 +449,10 @@ Requires `npm install ccxt` and exchange API keys.
 #### Trading (API key required)
 
 **🚨 SAFETY RULES — MANDATORY for ALL trading operations:**
-1. **NEVER execute a buy/sell/trade without explicit user confirmation.** Always show the order details and ask "确认下单？" BEFORE calling `create_order`.
+1. **NEVER execute a buy/sell/trade without explicit user confirmation.** `create_order` returns a preview by default. Show the preview to the user, wait for them to say "确认" / "yes" / "go ahead", THEN re-run with `"confirmed":"true"`. **Do NOT add confirmed=true on the first call.**
 2. **NEVER sell or close the user's existing positions** unless the user specifically asks to sell/close.
 3. **NEVER write custom CCXT, Python, or curl code** to interact with exchanges. ALL exchange operations MUST go through `exchange.mjs`.
+4. **NEVER auto-adjust order parameters** (size, leverage, etc.) without asking the user first. If balance is insufficient, tell the user and let them decide.
 
 **⚠️ CRITICAL — `amount` units differ between spot and futures:**
 - **Spot**: `amount` is in **base currency** (e.g., `amount: 0.01` = 0.01 BTC)
