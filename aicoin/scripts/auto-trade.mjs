@@ -72,15 +72,20 @@ cli({
     const ticker = ex('ticker', { exchange: cfg.exchange, symbol: cfg.symbol, market_type: cfg.market_type });
     const price = ticker.last || ticker.close;
 
-    // 3. Check market minimums
+    // 3. Check market minimums & get contract size
     const base = cfg.symbol.split('/')[0];
     const mkts = ex('markets', { exchange: cfg.exchange, market_type: cfg.market_type, base });
     const mkt = mkts.find(m => m.symbol === cfg.symbol);
+    const contractSize = mkt?.contractSize || 1; // e.g. OKX BTC = 0.01 BTC/contract
 
-    // 4. Calculate position size
+    // 4. Calculate position size (convert base amount to contracts for futures)
     const capital = usdt * cfg.capital_pct;
     const positionValue = capital * cfg.leverage;
-    const amount = positionValue / price;
+    const amountInBase = positionValue / price;
+    // For futures/swap, CCXT amount is in contracts; convert using contractSize
+    const amount = cfg.market_type !== 'spot' && contractSize
+      ? amountInBase / contractSize
+      : amountInBase;
 
     // 5. Set leverage
     try { ex('set_leverage', { exchange: cfg.exchange, symbol: cfg.symbol, leverage: cfg.leverage, market_type: cfg.market_type }); } catch {}
@@ -103,6 +108,8 @@ cli({
 
     return {
       direction, amount: Number(amount.toPrecision(4)),
+      amount_base: `${Number((amount * contractSize).toPrecision(4))} ${base}`,
+      contract_size: contractSize !== 1 ? `1 contract = ${contractSize} ${base}` : null,
       entry_price: price, stop_loss: Number(slPrice.toPrecision(6)), take_profit: Number(tpPrice.toPrecision(6)),
       order_id: order.id, sl_order: sl?.id || sl?.error, tp_order: tp?.id || tp?.error,
       capital_used: capital.toFixed(2), position_value: positionValue.toFixed(2),

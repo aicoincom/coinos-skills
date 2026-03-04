@@ -44,7 +44,12 @@ cli({
   markets: async ({ exchange, market_type, base, quote, limit = 100 }) => {
     const ex = await getExchange(exchange, market_type, true);
     await ex.loadMarkets();
-    let m = Object.values(ex.markets).map(x => ({ symbol: x.symbol, base: x.base, quote: x.quote, type: x.type, active: x.active }));
+    let m = Object.values(ex.markets).map(x => ({
+      symbol: x.symbol, base: x.base, quote: x.quote, type: x.type, active: x.active,
+      contractSize: x.contractSize || null,
+      limits: x.limits || null,
+      precision: x.precision || null,
+    }));
     if (market_type) m = m.filter(x => x.type === market_type);
     if (base) m = m.filter(x => x.base === base.toUpperCase());
     if (quote) m = m.filter(x => x.quote === quote.toUpperCase());
@@ -87,7 +92,20 @@ cli({
   },
   create_order: async ({ exchange, symbol, type, side, amount, price, market_type }) => {
     const ex = await getExchange(exchange, market_type);
-    return ex.createOrder(symbol, type, side, amount, price);
+    const order = await ex.createOrder(symbol, type, side, amount, price);
+    // For futures/swap, attach contract size context so callers know actual position
+    if (market_type && market_type !== 'spot') {
+      try {
+        await ex.loadMarkets();
+        const mkt = ex.markets[symbol];
+        if (mkt?.contractSize) {
+          order._contractSize = mkt.contractSize;
+          order._amountInBase = amount * mkt.contractSize;
+          order._unit = `${amount} contracts × ${mkt.contractSize} ${mkt.base}/contract = ${amount * mkt.contractSize} ${mkt.base}`;
+        }
+      } catch {}
+    }
+    return order;
   },
   cancel_order: async ({ exchange, symbol, order_id, market_type }) => {
     const ex = await getExchange(exchange, market_type);

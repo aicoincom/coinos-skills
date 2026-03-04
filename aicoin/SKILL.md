@@ -418,22 +418,25 @@ Requires `npm install ccxt` and exchange API keys.
 #### Trading (API key required)
 
 **Before placing any order, you MUST:**
-1. Run `markets` to get the trading pair's `limits.amount.min` (minimum order size) — do NOT guess or assume minimums
+1. Run `markets` to get the trading pair's `limits.amount.min` (minimum order size) and `contractSize` — do NOT guess or assume minimums
 2. Run `balance` to check available funds
 3. For futures/swap: calculate actual buying power = balance × leverage
 4. Verify: buying power ≥ min order size × current price
+5. **CRITICAL for futures/swap:** `amount` is in **contracts** (not base currency). Use `contractSize` to convert: `contracts = base_amount / contractSize`. Example: OKX BTC/USDT:USDT has contractSize=0.01, so 1 BTC = 100 contracts.
 
 Example pre-trade check for BTC/USDT perpetual on OKX:
 ```bash
-# Step 1: Check minimum order size
+# Step 1: Check minimum order size AND contract size
 node scripts/exchange.mjs markets '{"exchange":"okx","market_type":"swap","base":"BTC"}'
-# → look for limits.amount.min (e.g. 0.001 BTC)
+# → look for limits.amount.min (e.g. 1 contract) and contractSize (e.g. 0.01 BTC)
+# → This means: 1 contract = 0.01 BTC, min order = 1 contract = 0.01 BTC
 
 # Step 2: Check balance
 node scripts/exchange.mjs balance '{"exchange":"okx"}'
 # → e.g. 7 USDT free
 
-# Step 3: Calculate — 7 USDT × 10x = 70 USDT ÷ $68000 ≈ 0.001 BTC ≥ min → OK to trade
+# Step 3: Calculate — 7 USDT × 10x = 70 USDT ÷ $68000 ≈ 0.001 BTC ÷ 0.01 = 0.1 contracts → below min 1 contract → cannot trade
+# With more capital: 100 USDT × 10x = 1000 ÷ $68000 ≈ 0.0147 BTC ÷ 0.01 = 1.47 → round to 1 contract → OK
 ```
 
 | Action | Description | Params |
