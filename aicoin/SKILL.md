@@ -8,7 +8,7 @@ metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "b
 
 Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/opendata).
 
-**Version:** 1.5.13 | **Last Updated:** 2026-03-04
+**Version:** 1.5.14 | **Last Updated:** 2026-03-04
 
 ## Quick Reference — Most Common Commands
 
@@ -736,3 +736,16 @@ This automatically:
 - 停止机器人 / stop bot → `ft.mjs stop` or `ft-deploy.mjs stop`
 
 **IMPORTANT: For backtesting, use `ft-deploy.mjs backtest`. Do NOT write custom Python backtest scripts. The Freqtrade backtester is production-grade with proper slippage, fees, and position sizing simulation.**
+
+### Troubleshooting
+
+**If deployment fails:**
+1. Check Python version: `python3 --version` (need 3.11+)
+2. Check logs: `node scripts/ft-deploy.mjs logs`
+3. Verify exchange keys in `~/.openclaw/workspace/.env`
+4. DO NOT try manual fixes - report error and let ft-deploy.mjs handle it
+
+**If backtest fails:**
+1. Verify strategy file exists in `~/.freqtrade/user_data/strategies/`
+2. Check timerange format: `YYYYMMDD-YYYYMMDD` (e.g., `20250101-20260301`)
+3. Ensure data is downloaded (ft-deploy.mjs auto-downloads on first backtest)
