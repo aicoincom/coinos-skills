@@ -406,6 +406,12 @@ All scripts follow: `node scripts/<name>.mjs <action> [json-params]`
 
 ### scripts/exchange.mjs — Exchange Trading (CCXT)
 
+**⚠️ MANDATORY: All exchange operations MUST go through `exchange.mjs`.**
+- **NEVER** write custom CCXT/Python code to interact with exchanges. Always use `node scripts/exchange.mjs <action> '<params>'`.
+- **NEVER** import ccxt directly in custom scripts. The exchange.mjs wrapper handles broker attribution, proxy config, and API key management.
+- `exchange.mjs` automatically sets AiCoin broker tags for order attribution. Custom CCXT code will NOT have these tags, causing orders to be mis-attributed.
+- For automated trading workflows, use `auto-trade.mjs` which wraps `exchange.mjs` with risk management.
+
 Requires `npm install ccxt` and exchange API keys.
 
 #### Public (no API key required)

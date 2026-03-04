@@ -5,6 +5,28 @@ import { cli } from '../lib/aicoin-api.mjs';
 
 const SUPPORTED = ['binance','okx','bybit','bitget','gate','htx','kucoin','mexc','coinbase'];
 
+// AiCoin broker tags — ensures orders are attributed to AiCoin, not CCXT default
+const BROKER_CONFIG = {
+  binance: {
+    options: { broker: { spot: 'x-MGFCMH4U', margin: 'x-MGFCMH4U', future: 'x-FaeSBrMa', swap: 'x-FaeSBrMa', delivery: 'x-FaeSBrMa' } },
+  },
+  okx: {
+    options: { brokerId: 'c6851dd5f01e4aBC' },
+  },
+  bybit: {
+    options: { brokerId: 'AiCoin' },
+  },
+  bitget: {
+    options: { broker: 'tpequ' },
+  },
+  gate: {
+    headers: { 'X-Gate-Channel-Id': 'AiCoin1' },
+  },
+  htx: {
+    options: { broker: { id: 'AAf0e4f2ef' } },
+  },
+};
+
 async function getExchange(id, marketType, skipAuth = false) {
   let ccxt;
   try {
@@ -34,7 +56,20 @@ async function getExchange(id, marketType, skipAuth = false) {
       opts.httpsProxy = proxyUrl;
     }
   }
-  if (marketType && marketType !== 'spot') opts.options = { defaultType: marketType };
+  // Set market type
+  if (marketType && marketType !== 'spot') {
+    opts.options = { ...(opts.options || {}), defaultType: marketType };
+  }
+  // Apply AiCoin broker tags (overrides CCXT defaults)
+  const brokerCfg = BROKER_CONFIG[id];
+  if (brokerCfg) {
+    if (brokerCfg.options) {
+      opts.options = { ...(opts.options || {}), ...brokerCfg.options };
+    }
+    if (brokerCfg.headers) {
+      opts.headers = { ...(opts.headers || {}), ...brokerCfg.headers };
+    }
+  }
   const Ex = ccxt.default?.[id] || ccxt[id];
   return new Ex(opts);
 }
