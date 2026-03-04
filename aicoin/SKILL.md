@@ -8,7 +8,7 @@ metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "b
 
 Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/opendata).
 
-**Version:** 1.5.9 | **Last Updated:** 2026-03-04
+**Version:** 1.5.10 | **Last Updated:** 2026-03-04
 
 ## Quick Reference — Most Common Commands
 
@@ -459,6 +459,7 @@ Requires `npm install ccxt` and exchange API keys.
 2. **NEVER sell or close the user's existing positions** unless the user specifically asks to sell/close.
 3. **NEVER write custom CCXT, Python, or curl code** to interact with exchanges. ALL exchange operations MUST go through `exchange.mjs`.
 4. **NEVER auto-adjust order parameters** (size, leverage, etc.) without asking the user first. If balance is insufficient, tell the user and let them decide.
+5. **ALWAYS verify order details before confirmation**: Show coin, direction (buy/sell/long/short), quantity, estimated cost, and ask "确认下单？"
 
 **⚠️ CRITICAL — `amount` units differ between spot and futures:**
 - **Spot**: `amount` is in **base currency** (e.g., `amount: 0.01` = 0.01 BTC)
