@@ -8,7 +8,7 @@ metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "b
 
 Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/opendata).
 
-**Version:** 1.5.23 | **Last Updated:** 2026-03-04
+**Version:** 1.5.24 | **Last Updated:** 2026-03-04
 
 **Data Sources:** AiCoin aggregates data from 200+ exchanges. Price data is real-time, K-lines updated every second, funding rates every 8h.
 
@@ -25,6 +25,11 @@ node scripts/market.mjs kline '{"symbol":"btcusdt:okex","period":"3600","size":"
 # Check balance (requires exchange API keys)
 node scripts/exchange.mjs balance '{"exchange":"okx"}'
 ```
+
+**Performance Tips:**
+- Batch queries: `coin_ticker` supports multiple coins → faster than separate calls
+- Reduce API calls: Check balance once, reuse result for multiple calculations
+- Use appropriate timeframes: Don't fetch 1000 candles when 10 is enough
 
 ## Quick Reference — Most Common Commands
 
