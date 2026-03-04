@@ -33,6 +33,8 @@ Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.co
 | **Buy/Sell** | `node scripts/exchange.mjs create_order '{"exchange":"okx","symbol":"BTC/USDT","type":"market","side":"buy","amount":0.001}'` → returns **preview only** |
 | **Positions** | `node scripts/exchange.mjs positions '{"exchange":"okx","market_type":"swap"}'` |
 | **Market list** | `node scripts/exchange.mjs markets '{"exchange":"binance","base":"BTC"}'` |
+| **Deploy Freqtrade** | `node scripts/ft-deploy.mjs deploy '{"pairs":["BTC/USDT:USDT"]}'` (dry-run by default) |
+| **Backtest** | `node scripts/ft-deploy.mjs backtest '{"strategy":"SampleStrategy","timerange":"20250101-"}'` |
 
 **Symbol shortcuts:** `BTC`, `ETH`, `SOL`, `DOGE`, `XRP` auto-resolve to AiCoin format (e.g. `btcswapusdt:binance`) in coin.mjs. For exchange.mjs, use CCXT format: `BTC/USDT`, `BTC/USDT:USDT` (swap).
 
@@ -54,7 +56,7 @@ grep -c "AICOIN_ACCESS_KEY_ID" ~/.openclaw/workspace/.env 2>/dev/null || echo "0
 
 **Only ask setup questions when the user explicitly requests features that need configuration:**
 - Exchange trading (Binance, OKX, etc.) → needs exchange API keys + `cd` into the aicoin skill directory and run `npm install` for ccxt
-- Freqtrade bot → run `ft-deploy.mjs deploy` (auto-configures everything, needs Python 3 + exchange keys in .env)
+- Freqtrade bot → **MUST use `node scripts/ft-deploy.mjs deploy`** (auto-configures everything, needs Python 3.11+ + exchange keys in .env). **NEVER manually configure Freqtrade, NEVER use Docker, NEVER write custom install scripts.**
 - Proxy access → needs `PROXY_URL`
 
 **Do NOT block the user from running commands. The skill works out of the box with the built-in free key.**
@@ -649,6 +651,8 @@ openclaw cron add \
 ---
 
 ## Freqtrade Guide
+
+**🚨 CRITICAL: When user asks to deploy/setup Freqtrade, ALWAYS use `ft-deploy.mjs`. NEVER manually configure, NEVER use Docker, NEVER write custom scripts.**
 
 When the user asks about backtesting, professional strategies, quantitative trading, or deploying a trading bot, guide them to Freqtrade.
 
