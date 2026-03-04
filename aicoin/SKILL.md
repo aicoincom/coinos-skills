@@ -97,8 +97,10 @@ Create a `.env` file in the OpenClaw workspace directory (recommended):
 
 ```bash
 # AiCoin API (optional — built-in free key works with IP rate limits)
-AICOIN_ACCESS_KEY_ID=your-key
-AICOIN_ACCESS_SECRET=your-secret
+# Mapping: AiCoin website "API Key" → AICOIN_ACCESS_KEY_ID
+#          AiCoin website "API Secret" → AICOIN_ACCESS_SECRET
+AICOIN_ACCESS_KEY_ID=your-api-key
+AICOIN_ACCESS_SECRET=your-api-secret
 
 # Exchange trading — only if needed (requires: npm install -g ccxt)
 BINANCE_API_KEY=xxx
@@ -116,6 +118,25 @@ PROXY_URL=socks5://127.0.0.1:7890
 # FREQTRADE_USERNAME=freqtrader
 # FREQTRADE_PASSWORD=auto-generated
 ```
+
+**IMPORTANT — AiCoin API Key Configuration:**
+
+1. The user may provide two values without labels (just two strings copied from the AiCoin website). **Do NOT guess which is which.** Ask the user to confirm: "哪个是 API Key，哪个是 API Secret？" Or look for the labels in the user's message.
+
+2. **After writing keys to `.env`, ALWAYS verify by running a test call:**
+   ```bash
+   node scripts/coin.mjs coin_ticker '{"coin_list":"bitcoin"}'
+   ```
+
+3. **If the test returns error code `1001` (signature verification failed), the keys are swapped.** Fix by swapping them:
+   ```bash
+   # Read current values, swap them
+   OLD_KEY=$(grep '^AICOIN_ACCESS_KEY_ID=' ~/.openclaw/workspace/.env | cut -d= -f2)
+   OLD_SECRET=$(grep '^AICOIN_ACCESS_SECRET=' ~/.openclaw/workspace/.env | cut -d= -f2)
+   sed -i '' "s|^AICOIN_ACCESS_KEY_ID=.*|AICOIN_ACCESS_KEY_ID=${OLD_SECRET}|" ~/.openclaw/workspace/.env
+   sed -i '' "s|^AICOIN_ACCESS_SECRET=.*|AICOIN_ACCESS_SECRET=${OLD_KEY}|" ~/.openclaw/workspace/.env
+   ```
+   Then re-run the test to confirm it works.
 
 Or configure in `~/.openclaw/openclaw.json`:
 
