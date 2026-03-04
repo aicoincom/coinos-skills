@@ -149,7 +149,25 @@ cli({
     const ex = await getExchange(exchange, market_type);
     return ex.fetchOpenOrders(symbol);
   },
-  create_order: async ({ exchange, symbol, type, side, amount, price, market_type, params }) => {
+  create_order: async ({ exchange, symbol, type, side, amount, price, market_type, params, confirmed }) => {
+    // Safety: require explicit confirmation before placing real orders
+    if (confirmed !== 'true' && confirmed !== true) {
+      const ex = await getExchange(exchange, market_type);
+      await ex.loadMarkets();
+      const mkt = ex.markets[symbol];
+      const preview = {
+        _preview: true,
+        _message: '⚠️ Order NOT placed. Set confirmed=true to execute.',
+        exchange, symbol, type, side, amount, price: price || 'market',
+        market_type: market_type || 'spot',
+      };
+      if (mkt?.contractSize) {
+        preview._contractSize = mkt.contractSize;
+        preview._amountInBase = amount * mkt.contractSize;
+        preview._unit = `${amount} contracts × ${mkt.contractSize} ${mkt.base}/contract = ${amount * mkt.contractSize} ${mkt.base}`;
+      }
+      return preview;
+    }
     const ex = await getExchange(exchange, market_type);
     const order = await ex.createOrder(symbol, type, side, amount, price, params || {});
     // For futures/swap, attach contract size context so callers know actual position

@@ -100,7 +100,7 @@ cli({
     const side = direction === 'long' ? 'buy' : 'sell';
     const order = ex('create_order', {
       exchange: cfg.exchange, symbol: cfg.symbol, type: 'market', side,
-      amount, market_type: cfg.market_type,
+      amount, market_type: cfg.market_type, confirmed: 'true',
     });
 
     // 7. Place stop-loss & take-profit (conditional orders with reduceOnly)
@@ -109,8 +109,8 @@ cli({
     const closeSide = direction === 'long' ? 'sell' : 'buy';
 
     let sl, tp;
-    try { sl = ex('create_order', { exchange: cfg.exchange, symbol: cfg.symbol, type: 'market', side: closeSide, amount, market_type: cfg.market_type, params: { stopLossPrice: Number(slPrice.toPrecision(6)), reduceOnly: true } }); } catch (e) { sl = { error: e.message }; }
-    try { tp = ex('create_order', { exchange: cfg.exchange, symbol: cfg.symbol, type: 'market', side: closeSide, amount, market_type: cfg.market_type, params: { takeProfitPrice: Number(tpPrice.toPrecision(6)), reduceOnly: true } }); } catch (e) { tp = { error: e.message }; }
+    try { sl = ex('create_order', { exchange: cfg.exchange, symbol: cfg.symbol, type: 'market', side: closeSide, amount, market_type: cfg.market_type, confirmed: 'true', params: { stopLossPrice: Number(slPrice.toPrecision(6)), reduceOnly: true } }); } catch (e) { sl = { error: e.message }; }
+    try { tp = ex('create_order', { exchange: cfg.exchange, symbol: cfg.symbol, type: 'market', side: closeSide, amount, market_type: cfg.market_type, confirmed: 'true', params: { takeProfitPrice: Number(tpPrice.toPrecision(6)), reduceOnly: true } }); } catch (e) { tp = { error: e.message }; }
 
     return {
       direction, amount,
@@ -135,7 +135,7 @@ cli({
     const amount = Math.abs(Number(pos.contracts));
     const side = Number(pos.contracts) > 0 ? 'sell' : 'buy';
     const order = ex('create_order', {
-      exchange: cfg.exchange, symbol: cfg.symbol, type: 'market', side, amount, market_type: cfg.market_type,
+      exchange: cfg.exchange, symbol: cfg.symbol, type: 'market', side, amount, market_type: cfg.market_type, confirmed: 'true',
     });
     return { closed: true, side, amount, order_id: order.id };
   },

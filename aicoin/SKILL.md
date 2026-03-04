@@ -29,7 +29,8 @@ Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.co
 | **Balance** | `node scripts/exchange.mjs balance '{"exchange":"okx"}'` |
 | **Ticker** | `node scripts/exchange.mjs ticker '{"exchange":"binance","symbol":"BTC/USDT"}'` |
 | **Orderbook** | `node scripts/exchange.mjs orderbook '{"exchange":"binance","symbol":"BTC/USDT"}'` |
-| **Buy/Sell** | `node scripts/exchange.mjs create_order '{"exchange":"okx","symbol":"BTC/USDT","type":"market","side":"buy","amount":0.001}'` |
+| **Buy/Sell** | `node scripts/exchange.mjs create_order '{"exchange":"okx","symbol":"BTC/USDT","type":"market","side":"buy","amount":0.001}'` (returns preview) |
+| **Buy/Sell (confirmed)** | Add `"confirmed":"true"` to execute. MUST show preview to user first! |
 | **Positions** | `node scripts/exchange.mjs positions '{"exchange":"okx","market_type":"swap"}'` |
 | **Market list** | `node scripts/exchange.mjs markets '{"exchange":"binance","base":"BTC"}'` |
 
