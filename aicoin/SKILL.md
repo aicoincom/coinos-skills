@@ -8,7 +8,9 @@ metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "b
 
 Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/opendata).
 
-**Version:** 1.5.17 | **Last Updated:** 2026-03-04
+**Version:** 1.5.18 | **Last Updated:** 2026-03-04
+
+**Data Sources:** AiCoin aggregates data from 200+ exchanges. Price data is real-time, K-lines updated every second, funding rates every 8h.
 
 ## Quick Reference — Most Common Commands
 
