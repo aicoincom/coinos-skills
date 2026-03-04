@@ -8,7 +8,7 @@ metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "b
 
 Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/opendata).
 
-**Version:** 1.5.8 | **Last Updated:** 2026-03-04
+**Version:** 1.5.9 | **Last Updated:** 2026-03-04
 
 ## Quick Reference — Most Common Commands
 
@@ -16,6 +16,7 @@ Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.co
 > **API keys are pre-configured.** Do NOT ask the user for keys. Do NOT run `env`/`printenv`.
 > **Do NOT use curl, web_fetch, or browser** for crypto data. Always use these scripts.
 > **🚨 TRADING SAFETY: NEVER place orders without user confirmation. ALWAYS show order details and ask "确认下单？" FIRST. NEVER auto-adjust order size or parameters.**
+> **⚡ PERFORMANCE: Use batch queries when possible.** `coin_ticker` supports multiple coins in one call (e.g., `"coin_list":"bitcoin,ethereum,solana"`).
 
 | Task | Command |
 |------|---------|
