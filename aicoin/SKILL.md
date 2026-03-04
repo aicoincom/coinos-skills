@@ -34,7 +34,7 @@ Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.co
 | **Positions** | `node scripts/exchange.mjs positions '{"exchange":"okx","market_type":"swap"}'` |
 | **Market list** | `node scripts/exchange.mjs markets '{"exchange":"binance","base":"BTC"}'` |
 | **Deploy Freqtrade** | `node scripts/ft-deploy.mjs deploy '{"pairs":["BTC/USDT:USDT"]}'` (dry-run by default) |
-| **Backtest** | `node scripts/ft-deploy.mjs backtest '{"strategy":"SampleStrategy","timerange":"20250101-"}'` |
+| **Backtest** | `node scripts/ft-deploy.mjs backtest '{"strategy":"SampleStrategy","timerange":"20250101-"}'` ⚠️ MUST use this script |
 
 **Symbol shortcuts:** `BTC`, `ETH`, `SOL`, `DOGE`, `XRP` auto-resolve to AiCoin format (e.g. `btcswapusdt:binance`) in coin.mjs. For exchange.mjs, use CCXT format: `BTC/USDT`, `BTC/USDT:USDT` (swap).
 
@@ -584,6 +584,8 @@ The `open` action automatically:
 
 ### scripts/ft-deploy.mjs — Freqtrade Deployment
 
+**🚨 CRITICAL: For ALL Freqtrade operations (deploy, backtest, update), ALWAYS use ft-deploy.mjs. NEVER manually run freqtrade commands, NEVER write custom Python scripts, NEVER use Docker.**
+
 **One-click Freqtrade deployment via `git clone` + official `setup.sh` (no Docker).** Clones the Freqtrade repo, runs `setup.sh -i` to install all dependencies (including TA-Lib), generates config from `.env` exchange keys, starts as background process, auto-writes `FREQTRADE_*` vars to `.env`.
 
 | Action | Description | Params |
@@ -707,7 +709,7 @@ This automatically:
 
 ### When User Mentions These Keywords → Use Freqtrade
 
-- 回测 / backtest → `ft-deploy.mjs backtest` (does NOT require Freqtrade to be running)
+- 回测 / backtest → **MUST use `ft-deploy.mjs backtest`** (does NOT require Freqtrade to be running). NEVER write custom Python backtest scripts, NEVER manually run freqtrade commands.
 - 写策略 / write strategy → Write a `.py` file to `~/.freqtrade/user_data/strategies/`, then `ft-deploy.mjs backtest`
 - 量化策略 / strategy → `ft-dev.mjs strategy_list` (requires running process)
 - 部署机器人 / deploy bot → `ft-deploy.mjs deploy`
