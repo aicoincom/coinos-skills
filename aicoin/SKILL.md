@@ -417,12 +417,27 @@ Requires `npm install ccxt` and exchange API keys.
 
 #### Trading (API key required)
 
+**⚠️ CRITICAL — `amount` units differ between spot and futures:**
+- **Spot**: `amount` is in **base currency** (e.g., `amount: 0.01` = 0.01 BTC)
+- **Futures/Swap**: `amount` is in **contracts** (e.g., `amount: 1` = 1 contract). Get `contractSize` from `markets` to convert.
+
+**User intent → `amount` conversion (you MUST get this right):**
+| User says | Spot `amount` | Swap `amount` (OKX BTC, contractSize=0.01) |
+|-----------|--------------|---------------------------------------------|
+| "0.01 BTC" / "0.01个BTC" | `0.01` | `0.01 / 0.01 = 1` (1 contract) |
+| "1张合约" / "1 contract" | N/A | `1` (直接用) |
+| "0.01张" | N/A | `0.01` (0.01 contract = 0.0001 BTC) |
+| "100U" / "100 USDT" | `100 / price` | `(100 / price) / contractSize` |
+
+**NEVER pass the user's number directly as `amount` without checking the unit context!**
+
 **Before placing any order, you MUST:**
 1. Run `markets` to get the trading pair's `limits.amount.min` (minimum order size) and `contractSize` — do NOT guess or assume minimums
 2. Run `balance` to check available funds
-3. For futures/swap: calculate actual buying power = balance × leverage
-4. Verify: buying power ≥ min order size × current price
-5. **CRITICAL for futures/swap:** `amount` is in **contracts** (not base currency). Use `contractSize` to convert: `contracts = base_amount / contractSize`. Example: OKX BTC/USDT:USDT has contractSize=0.01, so 1 BTC = 100 contracts.
+3. Convert user's quantity to the correct unit using the table above
+4. For futures/swap: calculate actual buying power = balance × leverage
+5. Verify: buying power ≥ order value
+6. **Confirm with user**: "You want to buy X contracts (= Y BTC ≈ Z USDT), correct?" before placing the order
 
 Example pre-trade check for BTC/USDT perpetual on OKX:
 ```bash
