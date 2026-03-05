@@ -1,6 +1,6 @@
 ---
 name: aicoin
-description: "Use this skill when the user asks about crypto prices, trading, exchanges (Binance, OKX, Bybit, Bitget, Gate, HTX, KuCoin, MEXC, Coinbase), spot or futures orders, balance, leverage, positions, K-lines, funding rates, open interest, liquidation, whale tracking, news, Hyperliquid, Freqtrade, or automated trading."
+description: "Crypto data & trading skill. Use node scripts in this skill for ALL crypto operations. CRITICAL: For Freqtrade deploy/backtest, ALWAYS use `node scripts/ft-deploy.mjs` — NEVER use Docker, NEVER run freqtrade commands directly. Read SKILL.md for all available commands before acting."
 metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "bins": ["node"] }, "homepage": "https://www.aicoin.com/opendata", "source": "https://github.com/aicoincom/aicoin-skills", "license": "MIT" } }
 ---
 
@@ -8,7 +8,7 @@ metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "b
 
 Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/opendata).
 
-**Version:** 1.5.25 | **Last Updated:** 2026-03-05
+**Version:** 1.5.26 | **Last Updated:** 2026-03-05
 
 ---
 
