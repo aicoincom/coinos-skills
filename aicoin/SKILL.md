@@ -790,7 +790,7 @@ This automatically:
 ### When User Mentions These Keywords → Use Freqtrade
 
 - 回测 / backtest → **MUST use `ft-deploy.mjs backtest`** (does NOT require Freqtrade to be running). NEVER write custom Python backtest scripts, NEVER manually run freqtrade commands.
-- 写策略 / write strategy → Write a `.py` file to `~/.freqtrade/user_data/strategies/`, then `ft-deploy.mjs backtest`
+- 写策略 / write strategy → **FIRST read an existing template** (e.g. `FundingRateStrategy.py`), then write `.py` based on it. See "Writing Custom Strategies with AiCoin Data" below.
 - 量化策略 / strategy → `ft-dev.mjs strategy_list` (requires running process)
 - 部署机器人 / deploy bot → `ft-deploy.mjs deploy`
 - 实盘 / live trading → `ft-deploy.mjs deploy '{"dry_run":false}'`
@@ -798,6 +798,77 @@ This automatically:
 - 停止机器人 / stop bot → `ft.mjs stop` or `ft-deploy.mjs stop`
 
 **IMPORTANT: For backtesting, use `ft-deploy.mjs backtest`. Do NOT write custom Python backtest scripts. The Freqtrade backtester is production-grade with proper slippage, fees, and position sizing simulation.**
+
+### Writing Custom Strategies with AiCoin Data
+
+**🚨 BEFORE writing ANY strategy, ALWAYS read an existing template first:**
+```bash
+cat ~/.freqtrade/user_data/strategies/FundingRateStrategy.py
+```
+Copy the pattern exactly. Do NOT invent your own approach.
+
+**Required strategy structure:**
+```python
+class MyStrategy(IStrategy):
+    INTERFACE_VERSION = 3          # MUST be 3
+    timeframe = '15m'
+    can_short = True               # MUST set for short trading
+    minimal_roi = {"0": 0.05}
+    stoploss = -0.05
+
+    def populate_indicators(self, dataframe, metadata):
+        # ... compute indicators ...
+        # AiCoin data (live/dry_run only):
+        if self.dp and self.dp.runmode.value in ('live', 'dry_run'):
+            self._update_data(metadata)
+        return dataframe
+
+    def populate_entry_trend(self, dataframe, metadata):   # NO 's' at end!
+        # ... entry logic ...
+        return dataframe
+
+    def populate_exit_trend(self, dataframe, metadata):    # NO 's' at end!
+        # ... exit logic ...
+        return dataframe
+```
+
+**⚠️ Common mistakes (NEVER do these):**
+- ❌ `populate_entry_trends` → ✅ `populate_entry_trend` (no 's')
+- ❌ `populate_exit_trades` → ✅ `populate_exit_trend`
+- ❌ `for x in self.param.range` → ✅ `self.param.value` (single value, not loop)
+- ❌ Missing `INTERFACE_VERSION = 3` or `can_short = True`
+
+**AiCoin data import (MUST use this exact pattern):**
+```python
+def _update_data(self, metadata):
+    try:
+        import sys, os
+        _sd = os.path.dirname(os.path.abspath(__file__))
+        if _sd not in sys.path:
+            sys.path.insert(0, _sd)
+        from aicoin_data import AiCoinData, ccxt_to_aicoin
+        ac = AiCoinData(cache_ttl=300)
+        pair = metadata.get('pair', 'BTC/USDT:USDT')
+        exchange = self.config.get('exchange', {}).get('name', 'binance')
+        symbol = ccxt_to_aicoin(pair, exchange)
+        # ... call ac.xxx() methods ...
+    except ImportError:
+        logger.warning("aicoin_data module not found.")
+    except Exception as e:
+        logger.warning(f"AiCoin data error: {e}")
+```
+
+**aicoin_data.py API quick reference:**
+| Method | Returns | Use case |
+|--------|---------|----------|
+| `ac.funding_rate(symbol, weighted=True, limit='5')` | `{data: [{time,open,high,low,close}]}` close=rate | Funding rate strategy |
+| `ac.ls_ratio()` | `{data: {detail: {last: "0.87"}}}` | Contrarian L/S signal |
+| `ac.big_orders(symbol)` | `{data: [{side,amount,...}]}` | Whale order flow |
+| `ac.open_interest(coin, interval='15m', limit='10')` | `{data: [{openInterest,...}]}` | OI trend detection |
+| `ac.liquidation_map(symbol, cycle='24h')` | `{data: {longLiquidation, shortLiquidation}}` | Liquidation bias |
+| `ac.coin_ticker(coin_list='bitcoin')` | Price data | Current price |
+
+---
 
 ### Troubleshooting
 
