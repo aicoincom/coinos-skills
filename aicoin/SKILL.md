@@ -1,6 +1,6 @@
 ---
 name: aicoin
-description: "Crypto data & trading skill. Use node scripts in this skill for ALL crypto operations. CRITICAL: For Freqtrade deploy/backtest, ALWAYS use `node scripts/ft-deploy.mjs` — NEVER use Docker, NEVER run freqtrade commands directly. Read SKILL.md for all available commands before acting."
+description: "This skill should be used when the user asks about crypto prices, market data, K-line charts, funding rates, open interest, whale orders, long/short ratios, crypto news, exchange balances, trading, or any crypto-related query. Use when user says: 'BTC price', 'check price', 'show K-line', 'funding rate', 'whale orders', 'place order', 'check balance', 'crypto news', '查行情', '看价格', '大饼多少钱', 'K线', '资金费率', '多空比', '鲸鱼单', '查余额', '下单', '空投', '新闻快讯', '合约', '做多做空'. Covers 200+ exchanges with real-time data. MUST run node scripts to fetch real data — NEVER generate fake prices or hallucinate market data."
 metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "bins": ["node"] }, "homepage": "https://www.aicoin.com/opendata", "source": "https://github.com/aicoincom/aicoin-skills", "license": "MIT" } }
 ---
 
@@ -8,7 +8,7 @@ metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "b
 
 Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/opendata).
 
-**Version:** 1.5.31 | **Last Updated:** 2026-03-05
+**Version:** 1.5.32 | **Last Updated:** 2026-03-05
 
 ---
 
