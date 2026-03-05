@@ -1,7 +1,7 @@
 ---
 name: aicoin-freqtrade
 description: "This skill should be used when the user asks about writing trading strategies, backtesting, deploying Freqtrade bots, quantitative trading, strategy optimization, or any Freqtrade-related operation. Use when user says: 'write strategy', 'create strategy', 'backtest', 'deploy Freqtrade', 'deploy bot', 'quantitative trading', 'strategy optimization', 'hyperopt', 'live trading bot', '写策略', '创建策略', '回测', '部署Freqtrade', '部署机器人', '量化交易', '量化策略', '策略优化', '超参数优化', '实盘机器人'. IMPORTANT: ALWAYS use create_strategy to generate strategy files. NEVER write Python strategy code by hand. For crypto prices/charts, use aicoin-market. For exchange trading, use aicoin-trading. For Hyperliquid, use aicoin-hyperliquid."
-metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "bins": ["node"] }, "homepage": "https://www.aicoin.com/opendata", "source": "https://github.com/aicoincom/aicoin-skills", "license": "MIT" } }
+metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "bins": ["node"] }, "homepage": "https://www.aicoin.com/opendata", "source": "https://github.com/aicoincom/coinos-skills", "license": "MIT" } }
 ---
 
 # CoinOS Freqtrade

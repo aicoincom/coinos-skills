@@ -20,7 +20,3 @@ Skills are in the `skills/` directory. Each skill contains a `SKILL.md` with:
 - Quick reference table for common commands
 - Full script documentation with action tables
 - Cross-skill references
-
-## Legacy
-
-The `aicoin/` directory contains the original monolithic skill. It remains functional for backwards compatibility but new installations should use the 4 `aicoin-*` skills above.

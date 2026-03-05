@@ -9,13 +9,12 @@ This is a **Claude Code plugin** — a collection of CoinOS skills for crypto ma
 ## Architecture
 
 ```
-aicoin-skills/
+coinos-skills/
 ├── skills/              # 4 focused aicoin-* skills (v2.0)
 │   ├── aicoin-market/   # Prices, K-lines, news, signals
 │   ├── aicoin-trading/  # Exchange trading, auto-trade
 │   ├── aicoin-freqtrade/# Strategy creation, backtest, deploy
 │   └── aicoin-hyperliquid/ # HL whale tracking, analytics
-├── aicoin/              # Legacy monolithic skill (backwards compat)
 ├── AGENTS.md            # Skill overview for agents
 └── .claude-plugin/      # Plugin metadata
 ```
