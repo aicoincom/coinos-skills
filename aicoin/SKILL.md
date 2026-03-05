@@ -8,7 +8,7 @@ metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "b
 
 Crypto data & trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/opendata).
 
-**Version:** 1.5.30 | **Last Updated:** 2026-03-05
+**Version:** 1.5.31 | **Last Updated:** 2026-03-05
 
 ---
 
