@@ -1,60 +1,85 @@
-# AiCoin Skill for OpenClaw
+# CoinOS Skills
 
-One skill wrapping [AiCoin Open API](https://www.aicoin.com/opendata) — real-time crypto market data, on-chain analytics, exchange trading, and bot management. 40+ tools.
+4 AI skills wrapping [AiCoin Open API](https://www.aicoin.com/opendata) — real-time crypto market data, exchange trading, Freqtrade strategy automation, and Hyperliquid whale analytics.
+
+Works with **Claude Code, Cursor, Codex, OpenClaw, Windsurf, Gemini CLI** and more.
 
 ## Installation
 
 ```bash
-clawhub install aicoin
+npx skills add aicoincom/coinos-skills
 ```
 
-Or via GitHub:
+Select which skills to install, or use `--yes` to install all 4.
+
+## Skills
+
+| Skill | What it does | Scripts |
+|-------|-------------|---------|
+| **aicoin-market** | Prices, K-lines, funding rates, OI, whale orders, news, signals | coin, market, features, news, twitter, newsflash |
+| **aicoin-trading** | Exchange trading (Binance/OKX/Bybit/...), automated trading | exchange, auto-trade |
+| **aicoin-freqtrade** | Strategy creation, backtesting, bot deployment | ft-deploy, ft, ft-dev |
+| **aicoin-hyperliquid** | Hyperliquid whale tracking, liquidations, trader analytics | hl-market, hl-trader |
+
+## Quick Start
+
+No API key needed — a built-in free key works out of the box.
 
 ```bash
-npx skills add aicoincom/aicoin-skills
+# Ask your AI agent
+"BTC 现在多少钱？"
+"给我看一下 ETH 的 1 小时 K 线"
+"帮我写一个资金费率策略"
+"查一下 OKX 余额"
+"Hyperliquid 上 BTC 大户都在做什么方向？"
 ```
 
-## What's Included
+Or run scripts directly:
 
-| Script | Description | Tools |
-|--------|-------------|-------|
-| `coin.mjs` | Coin prices, AI analysis, funding rates, liquidation, open interest | 12 |
-| `market.mjs` | K-lines, indicators, indexes, crypto stocks, treasury, depth | 18 |
-| `news.mjs` | News articles, flash updates, exchange listings | 6 |
-| `features.mjs` | Long/short ratio, whale orders, trading signals | 16 |
-| `hl-market.mjs` | Hyperliquid tickers, whales, liquidations, OI, taker flow | 15 |
-| `hl-trader.mjs` | HL trader analytics, fills, orders, positions, portfolio | 15 |
-| `exchange.mjs` | CCXT exchange trading (Binance, OKX, Bybit, etc.) | 14 |
-| `ft.mjs` | Freqtrade bot control and monitoring | 24 |
-| `ft-dev.mjs` | Backtesting, strategy management, pair lists | 14 |
+```bash
+# Price
+node skills/aicoin-market/scripts/coin.mjs coin_ticker '{"coin_list":"bitcoin"}'
+
+# K-line
+node skills/aicoin-market/scripts/market.mjs kline '{"symbol":"btcusdt:okex","period":"3600","size":"100"}'
+
+# Balance
+node skills/aicoin-trading/scripts/exchange.mjs balance '{"exchange":"okx"}'
+
+# Create strategy (NEVER hand-write Python — always use this)
+node skills/aicoin-freqtrade/scripts/ft-deploy.mjs create_strategy '{"name":"MyStrat","timeframe":"15m","aicoin_data":["funding_rate"]}'
+
+# Backtest
+node skills/aicoin-freqtrade/scripts/ft-deploy.mjs backtest '{"strategy":"MyStrat","timerange":"20250101-20260301"}'
+
+# Hyperliquid ticker
+node skills/aicoin-hyperliquid/scripts/hl-market.mjs ticker '{"coin":"BTC"}'
+```
 
 ## Environment Variables
 
+Create a `.env` file (scripts auto-load from cwd, `~/.openclaw/workspace/.env`, or `~/.openclaw/.env`):
+
 ```bash
-# AiCoin API (optional — built-in free key available with IP rate limits)
+# AiCoin API (optional — built-in free key works with IP rate limits)
 AICOIN_ACCESS_KEY_ID="your-key"
 AICOIN_ACCESS_SECRET="your-secret"
 
-# Exchange trading (CCXT)
+# Exchange trading (only if needed)
 BINANCE_API_KEY="xxx"
 BINANCE_API_SECRET="xxx"
+# Supported: BINANCE, OKX, BYBIT, BITGET, GATE, HTX, KUCOIN, MEXC, COINBASE
+# OKX also needs: OKX_PASSWORD="xxx"
 
-# Freqtrade bot
-FREQTRADE_URL="http://localhost:8080"
-FREQTRADE_USERNAME="freqtrader"
-FREQTRADE_PASSWORD="xxx"
+# Proxy (optional)
+PROXY_URL="socks5://127.0.0.1:7890"
 ```
 
-## Usage
+## Why 4 Skills?
 
-The agent runs scripts automatically. You can also call them directly:
+The original monolithic skill had an 843-line SKILL.md. Weaker models (e.g., MiniMax-M2.5) couldn't follow critical instructions buried deep in it — like ignoring "MUST use create_strategy" and hand-writing broken Python instead.
 
-```bash
-node aicoin/scripts/coin.mjs coin_ticker '{"coin_list":"bitcoin,ethereum"}'
-node aicoin/scripts/market.mjs kline '{"symbol":"btcusdt:okex","period":"3600","size":"100"}'
-```
-
-See [SKILL.md](aicoin/SKILL.md) for the full action reference.
+Each skill now has a focused SKILL.md (< 200 lines), making critical rules impossible to miss.
 
 ## License
 
