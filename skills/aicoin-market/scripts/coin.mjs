@@ -65,8 +65,8 @@ cli({
     return apiGet(path, p);
   },
   // coin_liquidation
-  liquidation_map: ({ dbkey, cycle, leverage }) => {
-    const p = { dbkey: resolveDbkey(dbkey), cycle };
+  liquidation_map: ({ symbol, dbkey, cycle, leverage }) => {
+    const p = { dbkey: resolveDbkey(symbol || dbkey), cycle };
     if (leverage) p.leverage = leverage;
     return apiGet('/api/upgrade/v2/futures/liquidation/map', p);
   },
@@ -76,8 +76,8 @@ cli({
     if (end_time) p.end_time = end_time;
     return apiGet('/api/upgrade/v2/futures/liquidation/history', p);
   },
-  estimated_liquidation: ({ dbkey, cycle, leverage, limit = '5' }) => {
-    const p = { dbkey: resolveDbkey(dbkey), cycle, limit };
+  estimated_liquidation: ({ symbol, dbkey, cycle, leverage, limit = '5' }) => {
+    const p = { dbkey: resolveDbkey(symbol || dbkey), cycle, limit };
     if (leverage) p.leverage = leverage;
     return apiGet('/api/upgrade/v2/futures/estimated-liquidation/history', p);
   },
@@ -89,7 +89,7 @@ cli({
     return apiGet(path, { symbol, interval, limit });
   },
   // coin_futures_data
-  historical_depth: ({ key, limit = '100' }) => apiGet('/api/upgrade/v2/futures/historical-depth', { key: resolveSymbol(key), limit }),
-  super_depth: ({ key, amount = '10000', limit = '100' }) => apiGet('/api/upgrade/v2/futures/super-depth/history', { key: resolveSymbol(key), amount, limit }),
-  trade_data: ({ dbkey, limit = '100' }) => apiGet('/api/upgrade/v2/futures/trade-data', { dbkey: resolveDbkey(dbkey), limit }),
+  historical_depth: ({ symbol, key, limit = '100' }) => apiGet('/api/upgrade/v2/futures/historical-depth', { key: resolveSymbol(symbol || key), limit }),
+  super_depth: ({ symbol, key, amount = '10000', limit = '100' }) => apiGet('/api/upgrade/v2/futures/super-depth/history', { key: resolveSymbol(symbol || key), amount, limit }),
+  trade_data: ({ symbol, dbkey, limit = '100' }) => apiGet('/api/upgrade/v2/futures/trade-data', { dbkey: resolveDbkey(symbol || dbkey), limit }),
 });

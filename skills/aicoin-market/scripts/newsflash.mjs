@@ -3,19 +3,22 @@
 import { apiGet, cli } from '../lib/aicoin-api.mjs';
 
 cli({
-  search: ({ word, page, size } = {}) => {
-    const p = { word };
+  search: ({ keyword, word, page, page_size, size } = {}) => {
+    const p = { word: keyword || word };
     if (page) p.page = page;
-    if (size) p.size = size;
+    const ps = page_size || size;
+    if (ps) p.size = ps;
     return apiGet('/api/upgrade/v2/content/newsflash/search', p);
   },
-  list: ({ last_id, pagesize, tab, only_important, lan, platform_show, date_mode, jump_to_date, start_date, end_date } = {}) => {
+  list: ({ last_id, page_size, pagesize, tab, only_important, language, lan, platform_show, date_mode, jump_to_date, start_date, end_date } = {}) => {
     const p = {};
     if (last_id) p.last_id = last_id;
-    if (pagesize) p.pagesize = pagesize;
+    const ps = page_size || pagesize;
+    if (ps) p.pagesize = ps;
     if (tab) p.tab = tab;
     if (only_important) p.only_important = only_important;
-    if (lan) p.lan = lan;
+    const lg = language || lan;
+    if (lg) p.lan = lg;
     if (platform_show) p.platform_show = platform_show;
     if (date_mode) p.date_mode = date_mode;
     if (jump_to_date) p.jump_to_date = jump_to_date;

@@ -74,14 +74,14 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 | `coin_list` | List all coins | Basic | None |
 | `coin_config` | Coin profile | Basic | `{"coin_list":"bitcoin"}` |
 | `funding_rate` | Funding rate | Basic | `{"symbol":"BTC","interval":"8h"}` Weighted: add `"weighted":"true"` (Pro) |
-| `trade_data` | Trade data | Basic | `{"dbkey":"btcswapusdt:okcoinfutures"}` |
+| `trade_data` | Trade data | Basic | `{"symbol":"btcswapusdt:okcoinfutures"}` |
 | `ai_analysis` | AI analysis & prediction | Pro | `{"coin_keys":"[\"bitcoin\"]","language":"CN"}` |
 | `open_interest` | Open interest | Pro | `{"symbol":"BTC","interval":"15m"}` Coin-margined: add `"margin_type":"coin"` |
-| `liquidation_map` | Liquidation heatmap | Adv | `{"dbkey":"btcswapusdt:binance","cycle":"24h"}` |
+| `liquidation_map` | Liquidation heatmap | Adv | `{"symbol":"btcswapusdt:binance","cycle":"24h"}` |
 | `liquidation_history` | Liquidation history | Adv | `{"symbol":"btcswapusdt:binance","interval":"1m"}` |
-| `estimated_liquidation` | Estimated liquidation | Pro | `{"dbkey":"btcswapusdt:binance","cycle":"24h"}` |
-| `historical_depth` | Historical depth | Pro | `{"key":"btcswapusdt:okcoinfutures"}` |
-| `super_depth` | Large order depth >$10k | Pro | `{"key":"btcswapusdt:okcoinfutures"}` |
+| `estimated_liquidation` | Estimated liquidation | Pro | `{"symbol":"btcswapusdt:binance","cycle":"24h"}` |
+| `historical_depth` | Historical depth | Pro | `{"symbol":"btcswapusdt:okcoinfutures"}` |
+| `super_depth` | Large order depth >$10k | Pro | `{"symbol":"btcswapusdt:okcoinfutures"}` |
 
 ### scripts/market.mjs — Market Data
 
@@ -91,15 +91,15 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 | `hot_coins` | Trending coins | Free | `{"key":"defi"}` key: gamefi/anonymous/market/web/newcoin/stable/defi |
 | `exchanges` | Exchange list | Free | None |
 | `ticker` | Exchange tickers | Basic | `{"market_list":"okex,binance"}` |
-| `futures_interest` | Futures OI ranking | Basic | `{"lan":"cn"}` |
-| `depth_latest` | Real-time depth | Std | `{"dbKey":"btcswapusdt:binance"}` |
+| `futures_interest` | Futures OI ranking | Basic | `{"language":"cn"}` |
+| `depth_latest` | Real-time depth | Std | `{"symbol":"btcswapusdt:binance"}` |
 | `indicator_kline` | Indicator K-line | Adv | `{"symbol":"btcswapusdt:binance","indicator_key":"fundflow","period":"3600"}` |
 | `indicator_pairs` | Indicator pairs | Adv | `{"indicator_key":"fundflow"}` |
 | `index_list` | Index list | Adv | None |
 | `index_price` | Index price | Adv | `{"key":"i:diniw:ice"}` |
 | `index_info` | Index details | Adv | `{"key":"i:diniw:ice"}` |
-| `depth_full` | Full order book | Adv | `{"dbKey":"btcswapusdt:binance"}` |
-| `depth_grouped` | Grouped depth | Adv | `{"dbKey":"btcswapusdt:binance","groupSize":"100"}` |
+| `depth_full` | Full order book | Adv | `{"symbol":"btcswapusdt:binance"}` |
+| `depth_grouped` | Grouped depth | Adv | `{"symbol":"btcswapusdt:binance","groupSize":"100"}` |
 | `stock_quotes` | Stock quotes | Pro | `{"tickers":"i:mstr:nasdaq"}` |
 | `stock_top_gainer` | Top gainers | Pro | `{"us_stock":"true"}` |
 | `stock_company` | Company details | Pro | `{"symbol":"i:mstr:nasdaq"}` |
@@ -116,13 +116,13 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 |--------|-------------|----------|--------|
 | `pair_ticker` | Pair ticker | Free | `{"key_list":"btcusdt:okex,btcusdt:huobipro"}` |
 | `ls_ratio` | Long/short ratio | Basic | None |
-| `nav` | Market navigation | Basic | `{"lan":"cn"}` |
+| `nav` | Market navigation | Basic | `{"language":"cn"}` |
 | `pair_by_market` | Pairs by exchange | Basic | `{"market":"binance"}` |
 | `pair_list` | Pair list | Basic | `{"market":"binance","currency":"USDT"}` |
 | `grayscale_trust` | Grayscale trust | Std | None |
 | `gray_scale` | Grayscale holdings | Std | `{"coins":"btc,eth"}` |
 | `signal_alert` | Signal alerts | Std | None |
-| `signal_config` | Alert config | Std | `{"lan":"cn"}` |
+| `signal_config` | Alert config | Std | `{"language":"cn"}` |
 | `strategy_signal` | Strategy signal | Std | `{"signal_key":"depth_win_one"}` |
 | `change_signal` | Anomaly signal | Std | `{"type":"1"}` |
 | `big_orders` | Whale orders | Std | `{"symbol":"btcswapusdt:binance"}` |
@@ -137,7 +137,7 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 | Action | Description | Min Tier | Params |
 |--------|-------------|----------|--------|
 | `news_rss` | RSS news feed | Free | `{"page":"1"}` |
-| `news_list` | News list | Basic | `{"page":"1","pageSize":"20"}` |
+| `news_list` | News list | Basic | `{"page":"1","page_size":"20"}` |
 | `flash_list` | Industry flash news | Basic | `{"language":"cn"}` |
 | `newsflash` | AiCoin flash news | Std | `{"language":"cn"}` |
 | `news_detail` | News detail | Std | `{"id":"xxx"}` |
@@ -149,15 +149,15 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 |--------|-------------|----------|--------|
 | `latest` | Latest crypto tweets | Basic | `{"language":"cn","page_size":"20"}` |
 | `search` | Search tweets | Basic | `{"keyword":"bitcoin","language":"cn","page_size":"20"}` |
-| `members` | Search KOL/users | Std | `{"word":"elon","page":"1","size":"20"}` |
+| `members` | Search KOL/users | Std | `{"keyword":"elon","page":"1","page_size":"20"}` |
 | `interaction_stats` | Tweet engagement stats | Std | `{"flash_ids":"123,456,789"}` |
 
 ### scripts/newsflash.mjs — Newsflash (OpenData)
 
 | Action | Description | Min Tier | Params |
 |--------|-------------|----------|--------|
-| `search` | Search newsflash | Basic | `{"word":"bitcoin","page":"1","size":"20"}` |
-| `list` | Newsflash list with filters | Basic | `{"pagesize":"20","lan":"cn"}` |
+| `search` | Search newsflash | Basic | `{"keyword":"bitcoin","page":"1","page_size":"20"}` |
+| `list` | Newsflash list with filters | Basic | `{"page_size":"20","language":"cn"}` |
 | `detail` | Newsflash full content | Std | `{"flash_id":"123456"}` |
 
 ## Cross-Skill References

@@ -17,11 +17,12 @@ cli({
     if (page_size) p.page_size = page_size;
     return apiGet('/api/upgrade/v2/content/twitter/search', p);
   },
-  members: ({ word, type, page, size } = {}) => {
-    const p = { word };
+  members: ({ keyword, word, type, page, page_size, size } = {}) => {
+    const p = { word: keyword || word };
     if (type) p.type = type;
     if (page) p.page = page;
-    if (size) p.size = size;
+    const ps = page_size || size;
+    if (ps) p.size = ps;
     return apiGet('/api/upgrade/v2/content/twitter/members', p);
   },
   interaction_stats: ({ flash_ids } = {}) => {

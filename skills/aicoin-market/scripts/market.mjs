@@ -33,11 +33,13 @@ cli({
     if (currency) p.currency = currency;
     return apiGet('/api/v2/market/hotTabCoins', p);
   },
-  futures_interest: ({ lan, page, pageSize, currency } = {}) => {
+  futures_interest: ({ language, lan, page, page_size, pageSize, currency } = {}) => {
     const p = {};
-    if (lan) p.lan = lan;
+    const lg = language || lan;
+    if (lg) p.lan = lg;
     if (page) p.page = page;
-    if (pageSize) p.pageSize = pageSize;
+    const ps = page_size || pageSize;
+    if (ps) p.pageSize = ps;
     if (currency) p.currency = currency;
     return apiGet('/api/v2/futures/interest', p);
   },
@@ -66,9 +68,10 @@ cli({
     if (currency) p.currency = currency;
     return apiGet('/api/v2/index/indexPrice', p);
   },
-  index_info: ({ key, lan }) => {
+  index_info: ({ key, language, lan }) => {
     const p = { key };
-    if (lan) p.lan = lan;
+    const lg = language || lan;
+    if (lg) p.lan = lg;
     return apiGet('/api/v2/index/indexInfo', p);
   },
   index_list: () => apiGet('/api/v2/index/getIndex'),
@@ -93,11 +96,11 @@ cli({
   treasury_latest_history: ({ coin }) => apiGet('/api/upgrade/v2/coin-treasuries/latest/history', { coin }),
   treasury_summary: ({ coin }) => apiGet('/api/upgrade/v2/coin-treasuries/summary', { coin }),
   // depth
-  depth_latest: ({ dbKey, size }) => {
-    const p = { dbKey };
+  depth_latest: ({ symbol, dbKey, size }) => {
+    const p = { dbKey: symbol || dbKey };
     if (size) p.size = size;
     return apiGet('/api/upgrade/v2/futures/latest-depth', p);
   },
-  depth_full: ({ dbKey }) => apiGet('/api/upgrade/v2/futures/full-depth', { dbKey }),
-  depth_grouped: ({ dbKey, groupSize }) => apiGet('/api/upgrade/v2/futures/full-depth/grouped', { dbKey, groupSize }),
+  depth_full: ({ symbol, dbKey }) => apiGet('/api/upgrade/v2/futures/full-depth', { dbKey: symbol || dbKey }),
+  depth_grouped: ({ symbol, dbKey, groupSize }) => apiGet('/api/upgrade/v2/futures/full-depth/grouped', { dbKey: symbol || dbKey, groupSize }),
 });

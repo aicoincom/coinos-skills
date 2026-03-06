@@ -4,7 +4,7 @@ import { apiGet, cli } from '../lib/aicoin-api.mjs';
 
 cli({
   // market_overview
-  nav: ({ lan } = {}) => { const p = {}; if (lan) p.lan = lan; return apiGet('/api/v2/mix/nav', p); },
+  nav: ({ language, lan } = {}) => { const p = {}; const lg = language || lan; if (lg) p.lan = lg; return apiGet('/api/v2/mix/nav', p); },
   ls_ratio: () => apiGet('/api/v2/mix/ls-ratio'),
   liquidation: ({ currency, type, coinKey, marketKey } = {}) => {
     const p = {};
@@ -38,7 +38,7 @@ cli({
     return apiGet('/api/v2/signal/strategySignal', p);
   },
   signal_alert: () => apiGet('/api/v2/signal/signalAlert'),
-  signal_config: ({ lan } = {}) => { const p = {}; if (lan) p.lan = lan; return apiGet('/api/v2/signal/signalAlertConf', p); },
+  signal_config: ({ language, lan } = {}) => { const p = {}; const lg = language || lan; if (lg) p.lan = lg; return apiGet('/api/v2/signal/signalAlertConf', p); },
   signal_alert_list: () => apiGet('/api/v2/signal/getSignalAlertSetList'),
   change_signal: ({ type, currency } = {}) => {
     const p = {};
