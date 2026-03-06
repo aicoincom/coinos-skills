@@ -73,7 +73,7 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 | `coin_ticker` | Real-time prices | Free | `{"coin_list":"bitcoin,ethereum"}` |
 | `coin_list` | List all coins | Basic | None |
 | `coin_config` | Coin profile | Basic | `{"coin_list":"bitcoin"}` |
-| `funding_rate` | Funding rate | Basic | `{"symbol":"BTC","interval":"8h"}` Weighted: add `"weighted":"true"` (Pro) |
+| `funding_rate` | Funding rate (BTC only, aggregated) | Basic | `{"symbol":"BTC","interval":"8h"}` Weighted: add `"weighted":"true"` (Pro). For per-exchange real-time rates, use **aicoin-trading**: `node scripts/exchange.mjs funding_rate '{"exchange":"binance","symbol":"BTC/USDT:USDT"}'` |
 | `trade_data` | Trade data | Basic | `{"symbol":"btcswapusdt:okcoinfutures"}` |
 | `ai_analysis` | AI analysis & prediction | Pro | `{"coin_keys":"[\"bitcoin\"]","language":"CN"}` |
 | `open_interest` | Open interest | Pro | `{"symbol":"BTC","interval":"15m"}` Coin-margined: add `"margin_type":"coin"` |

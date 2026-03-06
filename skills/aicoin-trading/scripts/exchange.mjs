@@ -66,8 +66,10 @@ async function getExchange(id, marketType, skipAuth = false) {
       if (socksUrl.startsWith('socks5://')) socksUrl = socksUrl.replace('socks5://', 'socks5h://');
       else if (socksUrl.startsWith('socks4://')) socksUrl = socksUrl.replace('socks4://', 'socks4a://');
       opts.socksProxy = socksUrl;
-    } else {
+    } else if (proxyUrl.startsWith('https://')) {
       opts.httpsProxy = proxyUrl;
+    } else {
+      opts.httpProxy = proxyUrl;
     }
   }
   // Set market type
@@ -266,8 +268,31 @@ cli({
     return preview;
   },
   funding_rate: async ({ exchange, symbol, market_type }) => {
-    const ex = await getExchange(exchange, market_type || 'swap');
+    const ex = await getExchange(exchange, market_type || 'swap', true);
     return ex.fetchFundingRate(symbol);
+  },
+  funding_rates: async ({ symbol, exchanges: exList, market_type }) => {
+    const list = exList ? exList.split(',').map(s => s.trim()) : SUPPORTED;
+    const sym = symbol || 'BTC/USDT:USDT';
+    const results = await Promise.allSettled(
+      list.map(async id => {
+        try {
+          const ex = await getExchange(id, market_type || 'swap', true);
+          const r = await ex.fetchFundingRate(sym);
+          return { exchange: id, symbol: sym, fundingRate: r.fundingRate, fundingDatetime: r.fundingDatetime, markPrice: r.markPrice };
+        } catch (e) {
+          return { exchange: id, symbol: sym, error: e.message };
+        }
+      })
+    );
+    const rates = results.map(r => r.status === 'fulfilled' ? r.value : { exchange: 'unknown', error: r.reason?.message });
+    const valid = rates.filter(r => !r.error && r.fundingRate != null);
+    if (valid.length >= 2) {
+      valid.sort((a, b) => a.fundingRate - b.fundingRate);
+      const spread = valid[valid.length - 1].fundingRate - valid[0].fundingRate;
+      return { rates, arbitrage: { lowestRate: valid[0], highestRate: valid[valid.length - 1], spread, spreadPct: (spread * 100).toFixed(6) + '%', annualized: (spread * 3 * 365 * 100).toFixed(2) + '%' } };
+    }
+    return { rates, arbitrage: null, _note: 'Need at least 2 successful rate queries to calculate arbitrage spread' };
   },
   cancel_order: async ({ exchange, symbol, order_id, market_type }) => {
     const ex = await getExchange(exchange, market_type);

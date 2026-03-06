@@ -1,3 +1,5 @@
 .DS_Store
 issues.md
 .pending-order.json
+node_modules/
+package-lock.json

@@ -1,6 +1,6 @@
 ---
 name: aicoin-trading
-description: "This skill should be used when the user asks about exchange trading, placing orders, checking balance, viewing positions, order history, market list, leverage, margin mode, transferring funds, or automated trading. Use when user says: 'buy BTC', 'sell ETH', 'check balance', 'place order', 'open long', 'open short', 'close position', 'set leverage', 'auto trade', 'view positions', '下单', '买入', '卖出', '查余额', '做多', '做空', '平仓', '设杠杆', '自动交易', '合约交易', '现货交易'. Supports Binance, OKX, Bybit, Bitget, Gate.io, HTX, Pionex, Hyperliquid. For crypto prices/charts/news, use aicoin-market. For Freqtrade strategies, use aicoin-freqtrade. For Hyperliquid whale tracking/analytics (not trading), use aicoin-hyperliquid."
+description: "This skill should be used when the user asks about exchange trading, placing orders, checking balance, viewing positions, order history, market list, leverage, margin mode, transferring funds, automated trading, funding rate comparison, or funding rate arbitrage. Use when user says: 'buy BTC', 'sell ETH', 'check balance', 'place order', 'open long', 'open short', 'close position', 'set leverage', 'auto trade', 'view positions', 'funding rate arbitrage', 'compare funding rates', '下单', '买入', '卖出', '查余额', '做多', '做空', '平仓', '设杠杆', '自动交易', '合约交易', '现货交易', '资金费率套利', '资金费率对比', '各交易所费率'. Supports Binance, OKX, Bybit, Bitget, Gate.io, HTX, Pionex, Hyperliquid. For crypto prices/charts/news, use aicoin-market. For Freqtrade strategies, use aicoin-freqtrade. For Hyperliquid whale tracking/analytics (not trading), use aicoin-hyperliquid."
 metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "bins": ["node"] }, "homepage": "https://www.aicoin.com/opendata", "source": "https://github.com/aicoincom/coinos-skills", "license": "MIT" } }
 ---
 
@@ -30,6 +30,8 @@ Exchange trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/ope
 | Positions | `node scripts/exchange.mjs positions '{"exchange":"okx","market_type":"swap"}'` |
 | Set leverage | `node scripts/exchange.mjs set_leverage '{"exchange":"okx","symbol":"BTC/USDT:USDT","leverage":10,"market_type":"swap"}'` |
 | Auto-trade setup | `node scripts/auto-trade.mjs setup '{"exchange":"okx","symbol":"BTC/USDT:USDT","leverage":10,"capital_pct":0.5}'` |
+| Funding rate | `node scripts/exchange.mjs funding_rate '{"exchange":"okx","symbol":"BTC/USDT:USDT"}'` |
+| Funding rate compare | `node scripts/exchange.mjs funding_rates '{"symbol":"BTC/USDT:USDT","exchanges":"binance,okx,bybit"}'` |
 
 **Supported Exchanges:** Binance, OKX, Bybit, Bitget, Gate.io, HTX, Pionex, Hyperliquid.
 
@@ -121,6 +123,8 @@ Before placing ANY order:
 | `orderbook` | Order book | `{"exchange":"binance","symbol":"BTC/USDT"}` |
 | `trades` | Recent trades | `{"exchange":"binance","symbol":"BTC/USDT"}` |
 | `ohlcv` | OHLCV candles | `{"exchange":"binance","symbol":"BTC/USDT","timeframe":"1h"}` |
+| `funding_rate` | Funding rate (swap) | `{"exchange":"binance","symbol":"BTC/USDT:USDT"}` |
+| `funding_rates` | Compare rates across exchanges | `{"symbol":"BTC/USDT:USDT","exchanges":"binance,okx,bybit"}` Default: all supported exchanges. Returns rates + arbitrage spread. |
 
 #### Account (API key required)
 | Action | Description | Params |
@@ -169,6 +173,66 @@ The `open` action automatically: checks balance, calculates position size (capit
 openclaw cron add --name "BTC auto trade" --every 10m --session isolated \
   --message "Use aicoin-market to fetch data, analyze, then use aicoin-trading auto-trade.mjs open/close"
 ```
+
+## Funding Rate Arbitrage Workflow
+
+Funding rate arbitrage profits from rate differences across exchanges. Steps:
+
+### Step 1: Compare rates across exchanges
+
+Use `funding_rates` (plural) to query all exchanges at once:
+
+```bash
+# Compare BTC funding rates across all supported exchanges
+node scripts/exchange.mjs funding_rates '{"symbol":"BTC/USDT:USDT"}'
+
+# Or specify exchanges
+node scripts/exchange.mjs funding_rates '{"symbol":"BTC/USDT:USDT","exchanges":"binance,okx,bybit"}'
+```
+
+Returns: per-exchange rates + arbitrage spread + annualized return.
+
+Alternatively, query one exchange at a time:
+
+```bash
+node scripts/exchange.mjs funding_rate '{"exchange":"binance","symbol":"BTC/USDT:USDT"}'
+node scripts/exchange.mjs funding_rate '{"exchange":"okx","symbol":"BTC/USDT:USDT"}'
+node scripts/exchange.mjs funding_rate '{"exchange":"bybit","symbol":"BTC/USDT:USDT"}'
+```
+
+### Step 2: Evaluate opportunity
+
+- **Minimum spread**: Rate difference > 0.01% per period to cover fees
+- **Annualized return**: `rate_diff × 3 × 365 × 100%` (3 settlements/day for 8h funding)
+- **Example**: 0.05% spread = 0.05% × 3 × 365 = 54.75% annualized
+
+### Step 3: Execute (requires API keys on both exchanges)
+
+1. **Short** on the exchange with HIGHER positive funding rate (you receive funding)
+2. **Long** on the exchange with LOWER/negative funding rate (you pay less or receive)
+3. Equal position sizes to stay delta-neutral
+
+```bash
+# Example: Short on Binance (high rate), Long on OKX (low rate)
+node scripts/exchange.mjs create_order '{"exchange":"binance","symbol":"BTC/USDT:USDT","type":"market","side":"sell","amount":1,"market_type":"swap"}'
+node scripts/exchange.mjs create_order '{"exchange":"okx","symbol":"BTC/USDT:USDT","type":"market","side":"buy","amount":1,"market_type":"swap"}'
+```
+
+### Step 4: Monitor
+
+Set up periodic checks with OpenClaw cron:
+
+```bash
+openclaw cron add --name "funding rate monitor" --every 1h --session isolated \
+  --message "Check BTC funding rates on Binance, OKX, Bybit using aicoin-trading. If spread > 0.01%, alert me."
+```
+
+### Risks
+
+- **Liquidation risk**: Use low leverage (1-3x) on both sides
+- **Price divergence**: Prices between exchanges may differ temporarily
+- **Fee costs**: Trading fees + withdrawal fees eat into profits
+- **Funding rate changes**: Rates can flip between settlements
 
 ## Cross-Skill References
 
