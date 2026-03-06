@@ -164,14 +164,27 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 
 | Action | Description | Min Tier | Params |
 |--------|-------------|----------|--------|
-| `list` | Airdrop projects list | Basic | `{"page":"1","page_size":"20","exchange":"binance"}` |
-| `exchanges` | Available exchanges and activity types | Basic | `{"lan":"cn"}` |
+| `list` | Airdrop projects list (multi-source) | Basic | `{"source":"all","status":"ongoing","page":"1","page_size":"20","exchange":"binance"}` |
+| `detail` | Airdrop detail (hodler/xlaunch) | Std | `{"type":"hodler","token":"SIGN"}` |
 | `banner` | Hot airdrop banners | Basic | `{"limit":"5"}` |
-| `finished` | Completed airdrop projects | Std | `{"page":"1","page_size":"20"}` |
+| `exchanges` | Available exchanges and activity types | Basic | `{"lan":"cn"}` |
 | `calendar` | Airdrop calendar (year+month required) | Std | `{"year":"2026","month":"3"}` |
-| `detail` | Airdrop detail (hodler/xlaunch) | Std | `{"detail_type":"hodler","token":"SIGN"}` |
-| `cryptorank_list` | CryptoRank airdrop list | Pro | `{"page":"1","page_size":"20"}` |
-| `cryptorank_detail` | CryptoRank airdrop detail | Pro | `{"token":"69a6e6b5a905aa5c73e2992e"}` |
+
+**Source options for list:** `all`(default), `hodler`, `xlaunch`, `earncoin`, `alpha`, `bitget_launchpool`, `bitget_poolx`
+
+### scripts/drop_radar.mjs — Drop Radar (OpenData)
+
+| Action | Description | Min Tier | Params |
+|--------|-------------|----------|--------|
+| `list` | Project list with filters | Basic | `{"page":"1","page_size":"20","status":"CONFIRMED","keyword":"airdrop"}` |
+| `detail` | Project detail | Basic | `{"airdrop_id":"xxx"}` |
+| `widgets` | Statistics overview | Basic | `{"lan":"cn"}` |
+| `filters` | Available filter options | Basic | `{"lan":"cn"}` |
+| `events` | Project event calendar | Std | `{"airdrop_id":"xxx"}` |
+| `team` | Project team members | Std | `{"airdrop_id":"xxx"}` |
+| `x_following` | Project X following list | Std | `{"airdrop_id":"xxx"}` |
+| `status_changes` | Recent status changes | Std | `{"days":"7","page":"1","page_size":"20"}` |
+| `tweets` | Search project tweets | Std | `{"keywords":"bitcoin,airdrop","page_size":"20"}` |
 
 ## Cross-Skill References
 
