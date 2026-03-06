@@ -4,7 +4,7 @@ description: "This skill should be used when the user asks about exchange tradin
 metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "bins": ["node"] }, "homepage": "https://www.aicoin.com/opendata", "source": "https://github.com/aicoincom/coinos-skills", "license": "MIT" } }
 ---
 
-# CoinOS Trading
+# AiCoin Trading
 
 Exchange trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/opendata). Buy, sell, manage positions across 9 major exchanges.
 
