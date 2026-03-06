@@ -1,6 +1,6 @@
 ---
 name: aicoin-market
-description: "This skill should be used when the user asks about crypto prices, market data, K-line charts, funding rates, open interest, long/short ratios, whale orders, liquidation data, crypto news, newsflash, Twitter crypto tweets, trending coins, stock quotes, treasury holdings, or any crypto market query. Use when user says: 'BTC price', 'check price', 'show K-line', 'funding rate', 'open interest', 'whale orders', 'long/short ratio', 'crypto news', 'newsflash', 'trending coins', '查行情', '看价格', '大饼多少钱', 'K线', '资金费率', '多空比', '鲸鱼单', '新闻快讯', '热门币', 'liquidation map'. Covers 200+ exchanges with real-time data. MUST run node scripts to fetch real data. NEVER generate fake prices or hallucinate market data. For exchange trading (buy/sell/balance), use aicoin-trading instead. For Freqtrade strategies/backtest, use aicoin-freqtrade. For Hyperliquid whale analytics, use aicoin-hyperliquid."
+description: "This skill should be used when the user asks about crypto prices, market data, K-line charts, funding rates, open interest, long/short ratios, whale orders, liquidation data, crypto news, newsflash, Twitter crypto tweets, trending coins, stock quotes, treasury holdings, or any crypto market query. Also use when user asks about configuring or checking AiCoin API key. Use when user says: 'BTC price', 'check price', 'show K-line', 'funding rate', 'open interest', 'whale orders', 'long/short ratio', 'crypto news', 'newsflash', 'trending coins', '查行情', '看价格', '大饼多少钱', 'K线', '资金费率', '多空比', '鲸鱼单', '新闻快讯', '热门币', 'liquidation map', '配置AiCoin key', 'AiCoin API key', 'AiCoin key安全吗'. Covers 200+ exchanges with real-time data. MUST run node scripts to fetch real data. NEVER generate fake prices or hallucinate market data. IMPORTANT — AiCoin API Key: When user asks about AiCoin API key (配置/检查/安全/能不能交易), run `node scripts/coin.mjs api_key_info` FIRST, show the security_notice to user. For exchange trading (buy/sell/balance), use aicoin-trading instead. For Freqtrade strategies/backtest, use aicoin-freqtrade. For Hyperliquid whale analytics, use aicoin-hyperliquid."
 metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "bins": ["node"] }, "homepage": "https://www.aicoin.com/opendata", "source": "https://github.com/aicoincom/coinos-skills", "license": "MIT" } }
 ---
 
@@ -23,6 +23,7 @@ Crypto market data toolkit powered by [AiCoin Open API](https://www.aicoin.com/o
 
 | Task | Command | Min Tier |
 |------|---------|----------|
+| **API Key Info** | `node scripts/coin.mjs api_key_info` — **When user asks about AiCoin API key (配置/安全/能不能下单), ALWAYS run this first.** | Free |
 | BTC price | `node scripts/coin.mjs coin_ticker '{"coin_list":"bitcoin"}'` | Free |
 | K-line | `node scripts/market.mjs kline '{"symbol":"btcusdt:okex","period":"3600","size":"100"}'` | Free |
 | Funding rate | `node scripts/coin.mjs funding_rate '{"symbol":"BTC"}'` | Basic |
@@ -72,6 +73,7 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 
 | Action | Description | Min Tier | Params |
 |--------|-------------|----------|--------|
+| `api_key_info` | **AiCoin API Key status + security notice. Run when user asks about key config/safety.** | Free | None |
 | `coin_ticker` | Real-time prices | Free | `{"coin_list":"bitcoin,ethereum"}` |
 | `coin_list` | List all coins | Basic | None |
 | `coin_config` | Coin profile | Basic | `{"coin_list":"bitcoin"}` |
