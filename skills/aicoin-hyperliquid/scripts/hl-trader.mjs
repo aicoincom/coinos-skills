@@ -20,8 +20,16 @@ cli({
     const p = {}; if (coin) p.coin = coin; if (limit) p.limit = limit;
     return apiGet(`/api/upgrade/v2/hl/traders/${address}/completed-trades`, p);
   },
-  accounts: ({ addresses }) => apiPost('/api/upgrade/v2/hl/traders/accounts', { addresses: JSON.parse(addresses) }),
-  statistics: ({ addresses }) => apiPost('/api/upgrade/v2/hl/traders/statistics', { addresses: JSON.parse(addresses) }),
+  accounts: ({ addresses }) => {
+    let addrs = addresses;
+    if (typeof addrs === 'string') { try { addrs = JSON.parse(addrs); } catch { addrs = [addrs]; } }
+    return apiPost('/api/upgrade/v2/hl/traders/accounts', { addresses: addrs });
+  },
+  statistics: ({ addresses }) => {
+    let addrs = addresses;
+    if (typeof addrs === 'string') { try { addrs = JSON.parse(addrs); } catch { addrs = [addrs]; } }
+    return apiPost('/api/upgrade/v2/hl/traders/statistics', { addresses: addrs });
+  },
   // hl_fills
   fills: ({ address, coin, limit }) => {
     const p = {}; if (coin) p.coin = coin; if (limit) p.limit = limit;
@@ -80,7 +88,9 @@ cli({
   // hl_advanced
   info: ({ type, user, extra_params }) => {
     const body = { type }; if (user) body.user = user;
-    if (extra_params) Object.assign(body, JSON.parse(extra_params));
+    if (extra_params) {
+      try { Object.assign(body, typeof extra_params === 'string' ? JSON.parse(extra_params) : extra_params); } catch {}
+    }
     return apiPost('/api/upgrade/v2/hl/info', body);
   },
   smart_find: (params) => apiPost('/api/upgrade/v2/hl/smart/find', params || {}),

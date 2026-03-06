@@ -42,7 +42,12 @@ cli({
   coin_ticker: ({ coin_list }) => apiGet('/api/v2/coin/ticker', { coin_list }),
   coin_config: ({ coin_list }) => apiGet('/api/v2/coin/config', { coin_list }),
   ai_analysis: ({ coin_keys, language }) => {
-    const body = { coinKeys: JSON.parse(coin_keys) };
+    let keys = coin_keys;
+    if (typeof keys === 'string') {
+      try { keys = JSON.parse(keys); } catch { keys = [keys]; }
+    }
+    if (!Array.isArray(keys)) keys = [keys];
+    const body = { coinKeys: keys };
     if (language) body.language = language;
     return apiPost('/api/v2/content/ai-coins', body);
   },

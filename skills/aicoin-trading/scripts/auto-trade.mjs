@@ -34,7 +34,11 @@ function saveConfig(cfg) {
 
 function ex(action, params) {
   const args = [resolve(__dir, 'exchange.mjs'), action, JSON.stringify(params)];
-  return JSON.parse(execFileSync(process.execPath, args, { encoding: 'utf-8', cwd: resolve(__dir, '..'), timeout: 30000 }));
+  try {
+    return JSON.parse(execFileSync(process.execPath, args, { encoding: 'utf-8', cwd: resolve(__dir, '..'), timeout: 30000 }));
+  } catch (e) {
+    return { error: `exchange.mjs ${action} failed: ${e.message}` };
+  }
 }
 
 cli({
