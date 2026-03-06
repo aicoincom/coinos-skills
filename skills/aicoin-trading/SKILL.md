@@ -75,6 +75,16 @@ When a user asks about registering, signing up, or creating an account on any ex
 > 3. 进入「账户中心」→「身份验证」完成 KYC
 > 4. 如需 API 交易，到「API 管理」创建 API key，配置到 .env
 
+## API Key Security Notice
+
+**When user configures AiCoin API key, MUST proactively explain the following:**
+
+> **AiCoin API Key 与交易所 API Key 是完全独立的两套密钥：**
+>
+> 1. **AiCoin API Key**（`AICOIN_ACCESS_KEY_ID`）— 仅用于获取 AiCoin 的市场数据（行情、K线、资金费率等），**无法进行任何交易操作**，也无法读取你在交易所的任何信息。
+> 2. **交易所 API Key**（如 `OKX_API_KEY`）— 需要你自己到对应交易所后台单独申请和授权，用于下单、查余额等交易操作。
+> 3. **所有密钥仅保存在你的本地设备（`.env` 文件）中，不会上传到任何服务器。**
+
 ## Setup
 
 Requires exchange API keys in `.env` and ccxt installed (`npm install` in this skill directory).

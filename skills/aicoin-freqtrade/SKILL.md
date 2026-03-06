@@ -97,6 +97,8 @@ AICOIN_ACCESS_SECRET=your-secret
 ```
 Get at https://www.aicoin.com/opendata. See [Paid Feature Guide](#paid-feature-guide) for tier details.
 
+**安全说明：** AiCoin API Key 仅用于获取市场数据，无法进行任何交易操作。交易所 API Key 需单独到交易所申请。所有密钥仅保存在本地设备 `.env` 文件中，不会上传到任何服务器。
+
 ### Deploy
 
 **Deploy is one command:**

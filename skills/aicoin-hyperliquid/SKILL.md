@@ -31,6 +31,8 @@ AICOIN_ACCESS_SECRET=your-secret
 
 Get at https://www.aicoin.com/opendata. See [Paid Feature Guide](#paid-feature-guide) for tier details.
 
+**安全说明：** AiCoin API Key 仅用于获取 Hyperliquid 链上分析数据，无法进行任何交易操作。如需在 Hyperliquid 上交易，需单独配置钱包私钥（见 aicoin-trading skill）。所有密钥仅保存在本地设备 `.env` 文件中，不会上传到任何服务器。
+
 `.env` auto-loaded from: cwd → `~/.openclaw/workspace/.env` → `~/.openclaw/.env`.
 
 ## Quick Reference
