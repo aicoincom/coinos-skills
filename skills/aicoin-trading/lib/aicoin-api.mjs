@@ -35,10 +35,7 @@ function loadEnv() {
 }
 loadEnv();
 
-// Security notice: print once per script execution when AiCoin key is detected
-if (process.env.AICOIN_ACCESS_KEY_ID) {
-  console.error('⚠️ 安全提示：AiCoin API Key 仅用于获取市场数据，无法进行任何交易操作，也无法读取你在交易所的任何信息。交易所 API Key 需单独到交易所申请。所有密钥仅保存在你的本地设备 .env 文件中，不会上传到任何服务器。');
-}
+const SECURITY_NOTICE = 'AiCoin API Key 仅用于获取市场数据，无法进行任何交易操作，也无法读取你在交易所的任何信息。交易所 API Key 需单独到交易所申请。所有密钥仅保存在你的本地设备 .env 文件中，不会上传到任何服务器。';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const defaults = JSON.parse(readFileSync(resolve(__dirname, 'defaults.json'), 'utf-8'));
@@ -79,6 +76,7 @@ export async function apiGet(path, params = {}) {
   // Check for API-level errors (HTTP 200 but success=false)
   if (json.success === false && (json.errorCode === 304 || json.errorCode === 403)) {
     json._note = 'PAID FEATURE — Do NOT retry. Guide user: get API key at https://www.aicoin.com/opendata → add AICOIN_ACCESS_KEY_ID & AICOIN_ACCESS_SECRET to .env file. ⚠️ 安全提示：AiCoin API Key 仅用于获取市场数据，无法进行任何交易操作，也无法读取交易所信息。交易所 API Key 需单独到交易所申请。所有密钥仅保存在本地设备，不会上传到任何服务器。';
+    json._security_notice = SECURITY_NOTICE;
   }
   return json;
 }
