@@ -16,136 +16,146 @@ Hyperliquid whale tracking and analytics powered by [AiCoin Open API](https://ww
 2. **NEVER use curl, web_fetch, or browser.** Always use these scripts.
 3. **NEVER run `env` or `printenv`** — leaks API secrets.
 4. **Scripts auto-load `.env`** — never pass credentials inline.
+5. **On 304/403 error — STOP, do NOT retry.** Guide user to upgrade (see Paid Feature Guide at bottom).
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| All tickers | `node scripts/hl-market.mjs tickers` |
-| BTC ticker | `node scripts/hl-market.mjs ticker '{"coin":"BTC"}'` |
-| Whale positions | `node scripts/hl-market.mjs whale_positions '{"coin":"BTC","min_usd":"1000000"}'` |
-| Whale events | `node scripts/hl-market.mjs whale_events '{"coin":"BTC"}'` |
-| Whale directions | `node scripts/hl-market.mjs whale_directions '{"coin":"BTC"}'` |
-| Liquidation history | `node scripts/hl-market.mjs liq_history '{"coin":"BTC"}'` |
-| OI summary | `node scripts/hl-market.mjs oi_summary` |
-| Trader stats | `node scripts/hl-trader.mjs trader_stats '{"address":"0x...","period":"30"}'` |
-| Smart money | `node scripts/hl-trader.mjs smart_find` |
+| Task | Command | Min Tier |
+|------|---------|----------|
+| All tickers | `node scripts/hl-market.mjs tickers` | Free |
+| BTC ticker | `node scripts/hl-market.mjs ticker '{"coin":"BTC"}'` | Free |
+| Whale positions | `node scripts/hl-market.mjs whale_positions '{"coin":"BTC"}'` | Standard |
+| Whale events | `node scripts/hl-market.mjs whale_events '{"coin":"BTC"}'` | Standard |
+| Liquidation history | `node scripts/hl-market.mjs liq_history '{"coin":"BTC"}'` | Standard |
+| OI summary | `node scripts/hl-market.mjs oi_summary` | Advanced |
+| Trader stats | `node scripts/hl-trader.mjs trader_stats '{"address":"0x...","period":"30"}'` | Standard |
+| Smart money | `node scripts/hl-trader.mjs smart_find` | Standard |
+| Top open orders | `node scripts/hl-trader.mjs top_open '{"coin":"BTC"}'` | Basic |
 
 ## Scripts
 
 ### scripts/hl-market.mjs — Market Data
 
 #### Tickers
-| Action | Description | Params |
-|--------|-------------|--------|
-| `tickers` | All tickers | None |
-| `ticker` | Single coin | `{"coin":"BTC"}` |
+| Action | Description | Min Tier | Params |
+|--------|-------------|----------|--------|
+| `tickers` | All tickers | Free | None |
+| `ticker` | Single coin | Free | `{"coin":"BTC"}` |
 
 #### Whales
-| Action | Description | Params |
-|--------|-------------|--------|
-| `whale_positions` | Whale positions | `{"coin":"BTC","min_usd":"1000000"}` |
-| `whale_events` | Whale events | `{"coin":"BTC"}` |
-| `whale_directions` | Long/short direction | `{"coin":"BTC"}` |
-| `whale_history_ratio` | Historical long ratio | `{"coin":"BTC"}` |
+| Action | Description | Min Tier | Params |
+|--------|-------------|----------|--------|
+| `whale_positions` | Whale positions | Std | `{"coin":"BTC","min_usd":"1000000"}` |
+| `whale_events` | Whale events | Std | `{"coin":"BTC"}` |
+| `whale_directions` | Long/short direction | Std | `{"coin":"BTC"}` |
+| `whale_history_ratio` | Historical long ratio | Std | `{"coin":"BTC"}` |
 
 #### Liquidations
-| Action | Description | Params |
-|--------|-------------|--------|
-| `liq_history` | Liquidation history | `{"coin":"BTC"}` |
-| `liq_stats` | Liquidation stats | None |
-| `liq_stats_by_coin` | Stats by coin | `{"coin":"BTC"}` |
-| `liq_top_positions` | Large liquidations | `{"coin":"BTC","interval":"1d"}` |
+| Action | Description | Min Tier | Params |
+|--------|-------------|----------|--------|
+| `liq_history` | Liquidation history | Std | `{"coin":"BTC"}` |
+| `liq_stats` | Liquidation stats | Std | None |
+| `liq_stats_by_coin` | Stats by coin | Std | `{"coin":"BTC"}` |
+| `liq_top_positions` | Large liquidations | Std | `{"coin":"BTC","interval":"1d"}` |
 
 #### Open Interest
-| Action | Description | Params |
-|--------|-------------|--------|
-| `oi_summary` | OI overview | None |
-| `oi_top_coins` | OI ranking | `{"limit":"10"}` |
-| `oi_history` | OI history | `{"coin":"BTC","interval":"4h"}` |
+| Action | Description | Min Tier | Params |
+|--------|-------------|----------|--------|
+| `oi_summary` | OI overview | Adv | None |
+| `oi_top_coins` | OI ranking | Adv | `{"limit":"10"}` |
+| `oi_history` | OI history | Pro | `{"coin":"BTC","interval":"4h"}` |
 
 #### Taker
-| Action | Description | Params |
-|--------|-------------|--------|
-| `taker_delta` | Taker delta | `{"coin":"BTC"}` |
-| `taker_klines` | Taker K-lines | `{"coin":"BTC","interval":"4h"}` |
+| Action | Description | Min Tier | Params |
+|--------|-------------|----------|--------|
+| `taker_delta` | Taker delta | Adv | `{"coin":"BTC"}` |
+| `taker_klines` | Taker K-lines | Std | `{"coin":"BTC","interval":"4h"}` |
 
 ### scripts/hl-trader.mjs — Trader Analytics
 
 #### Trader Stats
-| Action | Description | Params |
-|--------|-------------|--------|
-| `trader_stats` | Trader statistics | `{"address":"0x...","period":"30"}` |
-| `best_trades` | Best trades | `{"address":"0x...","period":"30"}` |
-| `performance` | Performance by coin | `{"address":"0x...","period":"30"}` |
-| `completed_trades` | Completed trades | `{"address":"0x...","coin":"BTC"}` |
-| `accounts` | Batch accounts | `{"addresses":"[\"0x...\"]"}` |
-| `statistics` | Batch statistics | `{"addresses":"[\"0x...\"]"}` |
+| Action | Description | Min Tier | Params |
+|--------|-------------|----------|--------|
+| `trader_stats` | Trader statistics | Std | `{"address":"0x...","period":"30"}` |
+| `best_trades` | Best trades | Std | `{"address":"0x...","period":"30"}` |
+| `performance` | Performance by coin | Std | `{"address":"0x...","period":"30"}` |
+| `completed_trades` | Completed trades | Std | `{"address":"0x...","coin":"BTC"}` |
+| `accounts` | Batch accounts | Std | `{"addresses":"[\"0x...\"]"}` |
+| `statistics` | Batch statistics | Std | `{"addresses":"[\"0x...\"]"}` |
 
 #### Fills
-| Action | Description | Params |
-|--------|-------------|--------|
-| `fills` | Address fills | `{"address":"0x..."}` |
-| `fills_by_oid` | By order ID | `{"oid":"xxx"}` |
-| `fills_by_twapid` | By TWAP ID | `{"twapid":"xxx"}` |
-| `top_trades` | Large trades | `{"coin":"BTC","interval":"1d"}` |
+| Action | Description | Min Tier | Params |
+|--------|-------------|----------|--------|
+| `fills` | Address fills | Std | `{"address":"0x..."}` |
+| `fills_by_oid` | By order ID | Std | `{"oid":"xxx"}` |
+| `fills_by_twapid` | By TWAP ID | Std | `{"twapid":"xxx"}` |
+| `top_trades` | Large trades | Basic | `{"coin":"BTC","interval":"1d"}` |
 
 #### Orders
-| Action | Description | Params |
-|--------|-------------|--------|
-| `orders_latest` | Latest orders | `{"address":"0x..."}` |
-| `order_by_oid` | By order ID | `{"oid":"xxx"}` |
-| `filled_orders` | Filled orders | `{"address":"0x..."}` |
-| `filled_by_oid` | Filled by ID | `{"oid":"xxx"}` |
-| `top_open` | Large open orders | `{"coin":"BTC","min_val":"100000"}` |
-| `active_stats` | Active stats | `{"coin":"BTC"}` |
-| `twap_states` | TWAP states | `{"address":"0x..."}` |
+| Action | Description | Min Tier | Params |
+|--------|-------------|----------|--------|
+| `orders_latest` | Latest orders | Std | `{"address":"0x..."}` |
+| `order_by_oid` | By order ID | Std | `{"oid":"xxx"}` |
+| `filled_orders` | Filled orders | Std | `{"address":"0x..."}` |
+| `filled_by_oid` | Filled by ID | Std | `{"oid":"xxx"}` |
+| `top_open` | Large open orders | Basic | `{"coin":"BTC","min_val":"100000"}` |
+| `active_stats` | Active stats | Basic | `{"coin":"BTC"}` |
+| `twap_states` | TWAP states | Std | `{"address":"0x..."}` |
 
 #### Positions
-| Action | Description | Params |
-|--------|-------------|--------|
-| `current_pos_history` | Current position history | `{"address":"0x...","coin":"BTC"}` |
-| `completed_pos_history` | Closed position history | `{"address":"0x...","coin":"BTC"}` |
-| `current_pnl` | Current PnL | `{"address":"0x...","coin":"BTC","interval":"1h"}` |
-| `completed_pnl` | Closed PnL | `{"address":"0x...","coin":"BTC","interval":"1h"}` |
-| `current_executions` | Current executions | `{"address":"0x...","coin":"BTC","interval":"1h"}` |
-| `completed_executions` | Closed executions | `{"address":"0x...","coin":"BTC","interval":"1h"}` |
+| Action | Description | Min Tier | Params |
+|--------|-------------|----------|--------|
+| `current_pos_history` | Current position history | Std | `{"address":"0x...","coin":"BTC"}` |
+| `completed_pos_history` | Closed position history | Std | `{"address":"0x...","coin":"BTC"}` |
+| `current_pnl` | Current PnL | Std | `{"address":"0x...","coin":"BTC","interval":"1h"}` |
+| `completed_pnl` | Closed PnL | Std | `{"address":"0x...","coin":"BTC","interval":"1h"}` |
+| `current_executions` | Current executions | Std | `{"address":"0x...","coin":"BTC","interval":"1h"}` |
+| `completed_executions` | Closed executions | Std | `{"address":"0x...","coin":"BTC","interval":"1h"}` |
 
 #### Portfolio
-| Action | Description | Params |
-|--------|-------------|--------|
-| `portfolio` | Account curve | `{"address":"0x...","window":"week"}` window: day/week/month/allTime |
-| `pnls` | PnL curve | `{"address":"0x...","period":"30"}` |
-| `max_drawdown` | Max drawdown | `{"address":"0x...","days":"30"}` |
-| `net_flow` | Net flow | `{"address":"0x...","days":"30"}` |
+| Action | Description | Min Tier | Params |
+|--------|-------------|----------|--------|
+| `portfolio` | Account curve | Std | `{"address":"0x...","window":"week"}` |
+| `pnls` | PnL curve | Std | `{"address":"0x...","period":"30"}` |
+| `max_drawdown` | Max drawdown | Std | `{"address":"0x...","days":"30"}` |
+| `net_flow` | Net flow | Std | `{"address":"0x...","days":"30"}` |
 
 #### Advanced
-| Action | Description | Params |
-|--------|-------------|--------|
-| `info` | Info API | `{"type":"metaAndAssetCtxs"}` |
-| `smart_find` | Smart money discovery | `{}` |
-| `discover` | Trader discovery | `{}` |
+| Action | Description | Min Tier | Params |
+|--------|-------------|----------|--------|
+| `info` | Info API | Free | `{"type":"metaAndAssetCtxs"}` |
+| `smart_find` | Smart money discovery | Std | `{}` |
+| `discover` | Trader discovery | Adv | `{}` |
 
 ## Cross-Skill References
 
 | Need | Use |
 |------|-----|
 | Prices, K-lines, news | **aicoin-market** |
-| Exchange trading (buy/sell) | **aicoin-trading** |
+| Exchange trading (buy/sell), including Hyperliquid orders | **aicoin-trading** |
 | Freqtrade strategies/backtest | **aicoin-freqtrade** |
 
 ## Common Errors
 
-- `errorCode 304 / 403` — Paid feature. Do NOT retry. Guide user: get API key at https://www.aicoin.com/opendata, add `AICOIN_ACCESS_KEY_ID` & `AICOIN_ACCESS_SECRET` to `.env`. Tiers: Free $0 / Basic $29 / Standard $79 / Advanced $299 / Professional $699.
+- `errorCode 304 / HTTP 403` — Paid feature. See Paid Feature Guide below.
 - `Invalid coin` — Use uppercase: `BTC`, `ETH`, `SOL`
 - `Address format` — Must be full `0x...` Ethereum address
 - `Rate limit exceeded` — Wait 1-2s between requests
 
-## Environment Variables
+## Paid Feature Guide
 
-Scripts auto-load `.env`. Optional:
-```
-AICOIN_ACCESS_KEY_ID=your-api-key
-AICOIN_ACCESS_SECRET=your-api-secret
-PROXY_URL=socks5://127.0.0.1:7890  # optional
-```
+When a script returns 304 or 403: **Do NOT retry.** Tell the user:
+
+1. This feature needs a paid AiCoin API subscription.
+2. Get API key at https://www.aicoin.com/opendata
+
+| Tier | Price | HL Features |
+|------|-------|-------------|
+| Free | $0 | Tickers, info only |
+| Basic | $29/mo | + Top trades, top open orders, active stats |
+| Standard | $79/mo | + Whales, liquidations, trader analytics, taker K-lines |
+| Advanced | $299/mo | + OI summary/top, taker delta, trader discover |
+| Professional | $699/mo | + OI history |
+
+3. Add to `.env`: `AICOIN_ACCESS_KEY_ID=xxx` / `AICOIN_ACCESS_SECRET=xxx`
+4. Scripts auto-load `.env` from cwd, `~/.openclaw/workspace/.env`, or `~/.openclaw/.env`.

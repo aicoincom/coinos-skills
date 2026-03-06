@@ -8,7 +8,7 @@ import { dirname, resolve } from 'node:path';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 
-const SUPPORTED = ['binance','okx','bybit','bitget','gate','htx','kucoin','mexc','coinbase'];
+const SUPPORTED = ['binance','okx','bybit','bitget','gate','htx','kucoin','mexc','coinbase','hyperliquid'];
 
 // AiCoin broker tags — ensures orders are attributed to AiCoin, not CCXT default
 const BROKER_CONFIG = {
