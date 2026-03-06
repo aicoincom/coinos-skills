@@ -44,14 +44,54 @@ Requires exchange API keys in `.env` and ccxt installed (`npm install` in this s
 2. `~/.openclaw/workspace/.env`
 3. `~/.openclaw/.env`
 
+### CEX (Centralized Exchanges)
+
+All CEX use the same pattern — go to exchange API management page, create API key:
+
+| Exchange | API Key Management URL |
+|----------|----------------------|
+| Binance | https://www.binance.com/en/my/settings/api-management |
+| OKX | https://www.okx.com/account/my-api |
+| Bybit | https://www.bybit.com/app/user/api-management |
+| Bitget | https://www.bitget.com/account/newapi |
+| Gate.io | https://www.gate.io/myaccount/apikeys |
+| HTX | https://www.htx.com/en-us/apikey/ |
+| KuCoin | https://www.kucoin.com/account/api |
+| MEXC | https://www.mexc.com/user/openapi |
+| Coinbase | https://www.coinbase.com/settings/api |
+
 ```
+# Format: {EXCHANGE}_API_KEY / {EXCHANGE}_API_SECRET
+# Supported: BINANCE, OKX, BYBIT, BITGET, GATE, HTX, KUCOIN, MEXC, COINBASE
 BINANCE_API_KEY=xxx
 BINANCE_API_SECRET=xxx
-# Supported: BINANCE, OKX, BYBIT, BITGET, GATE, HTX, KUCOIN, MEXC, COINBASE, HYPERLIQUID
-# OKX also needs: OKX_PASSWORD=xxx
-# Hyperliquid (DEX): HYPERLIQUID_API_KEY=0xYourWalletAddress  HYPERLIQUID_API_SECRET=0xYourPrivateKey
+
+# OKX additionally needs passphrase:
+OKX_API_KEY=xxx
+OKX_API_SECRET=xxx
+OKX_PASSWORD=your-passphrase
+
 PROXY_URL=socks5://127.0.0.1:7890  # optional
 ```
+
+### Hyperliquid (DEX — wallet-based, NOT API key)
+
+Hyperliquid is a DEX. There is NO API key page. Authentication uses your **wallet address + private key**.
+
+```
+# Wallet address (0x...) — this is your public address, NOT an API key
+HYPERLIQUID_API_KEY=0x1234...abcd
+# Private key (0x...) — export from MetaMask/Rabby, or use HL Agent Wallet
+HYPERLIQUID_API_SECRET=0xabcd...1234
+```
+
+**How to get these:**
+1. `HYPERLIQUID_API_KEY` = your EVM wallet address (the 0x... shown in MetaMask/Rabby)
+2. `HYPERLIQUID_API_SECRET` = private key. Two options:
+   - **Agent Wallet (recommended)**: On app.hyperliquid.xyz → Settings → Agent Wallet → Create. This gives a limited-permission key that can only trade (cannot withdraw).
+   - **Wallet private key**: Export from MetaMask (Settings → Security → Export Private Key). Full permissions — use with caution.
+
+**Symbol format**: Hyperliquid uses USDC, not USDT: `BTC/USDC:USDC`, `ETH/USDC:USDC`.
 
 ## Pre-Trade Checklist (MANDATORY)
 
@@ -142,9 +182,32 @@ openclaw cron add --name "BTC auto trade" --every 10m --session isolated \
 
 ## Common Errors
 
-- `errorCode 304 / 403` — Paid AiCoin feature. Do NOT retry. Guide user: get API key at https://www.aicoin.com/opendata. Tiers: Free $0 / Basic $29 / Standard $79 / Advanced $299 / Professional $699.
-- `Invalid symbol` — Use CCXT format: `BTC/USDT` (spot), `BTC/USDT:USDT` (swap)
+- `errorCode 304 / HTTP 403` — Paid AiCoin feature. **Do NOT retry.** See below.
+- `Invalid symbol` — Use CCXT format: `BTC/USDT` (spot), `BTC/USDT:USDT` (swap). Hyperliquid uses USDC: `BTC/USDC:USDC`.
 - `Insufficient balance` — Check balance first, don't auto-adjust. Tell user.
 - `API key invalid` — Keys in `.env`, never inline. Check if user configured exchange keys.
 - `Rate limit exceeded` — Wait 1-2s between requests.
 - OKX error 58123 — Unified account, no transfer needed between spot/futures.
+
+## Paid Feature Guide
+
+When a script returns 304 or 403: **Do NOT retry.** Tell the user:
+
+1. **What happened**: This feature needs a paid AiCoin API subscription.
+2. **How to get a key**: Visit https://www.aicoin.com/opendata to register and create an API key.
+3. **Tier options**:
+
+| Tier | Price | Highlights |
+|------|-------|------------|
+| Free | $0 | Prices, K-lines, trending coins |
+| Basic | $29/mo | + Funding rate, L/S ratio, news |
+| Standard | $79/mo | + Whale orders, signals, grayscale |
+| Advanced | $299/mo | + Liquidation map, indicator K-lines, depth |
+| Professional | $699/mo | All endpoints: AI analysis, OI, stocks |
+
+4. **How to configure**: Add to `.env` file:
+```
+AICOIN_ACCESS_KEY_ID=your-key-id
+AICOIN_ACCESS_SECRET=your-secret
+```
+5. `.env` auto-loaded from: cwd → `~/.openclaw/workspace/.env` → `~/.openclaw/.env`. After configuring, the same script command will work.

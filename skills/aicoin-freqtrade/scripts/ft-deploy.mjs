@@ -483,7 +483,7 @@ const actions = {
     const dest = resolve(STRAT_DIR, `${name}.py`);
     const tf = params.timeframe || '15m';
     const desc = params.description || 'Custom strategy';
-    const PAID_DATA = { big_orders: 'Standard ($79/mo)', open_interest: 'Professional ($699/mo)', liquidation_map: 'Advanced ($299/mo)' };
+    const PAID_DATA = { funding_rate: 'Basic ($29/mo)', ls_ratio: 'Basic ($29/mo)', big_orders: 'Standard ($79/mo)', open_interest: 'Professional ($699/mo)', liquidation_map: 'Advanced ($299/mo)' };
     const ds = new Set(params.aicoin_data || []);
 
     // Detect if using built-in free key (no custom key configured)

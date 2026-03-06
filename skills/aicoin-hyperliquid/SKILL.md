@@ -18,6 +18,19 @@ Hyperliquid whale tracking and analytics powered by [AiCoin Open API](https://ww
 4. **Scripts auto-load `.env`** — never pass credentials inline.
 5. **On 304/403 error — STOP, do NOT retry.** Guide user to upgrade (see Paid Feature Guide at bottom).
 
+## Setup
+
+Scripts work out of the box with a built-in free key (tickers + info only). For whale/trader/OI data, add your API key to `.env`:
+
+```
+AICOIN_ACCESS_KEY_ID=your-key-id
+AICOIN_ACCESS_SECRET=your-secret
+```
+
+Get at https://www.aicoin.com/opendata. See [Paid Feature Guide](#paid-feature-guide) for tier details.
+
+`.env` auto-loaded from: cwd → `~/.openclaw/workspace/.env` → `~/.openclaw/.env`.
+
 ## Quick Reference
 
 | Task | Command | Min Tier |

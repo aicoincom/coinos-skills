@@ -26,22 +26,22 @@ node scripts/ft-deploy.mjs create_strategy '{"name":"SimpleRSI","timeframe":"1h"
 
 | Data source | What it does | AiCoin tier |
 |-------------|-------------|-------------|
-| `funding_rate` | Extreme funding = over-leveraged, trade against | **Free** |
-| `ls_ratio` | Contrarian signal from retail long/short ratio | **Free** |
+| `funding_rate` | Extreme funding = over-leveraged, trade against | Basic ($29/mo) |
+| `ls_ratio` | Contrarian signal from retail long/short ratio | Basic ($29/mo) |
 | `big_orders` | Whale buy/sell pressure from institutional orders | Standard ($79/mo) |
 | `open_interest` | Detect OI spikes = fragile market | Professional ($699/mo) |
 | `liquidation_map` | Liquidation cascade direction bias | Advanced ($299/mo) |
 
 ### Strategy Generation Rules for Agent
 
-Based on the user's strategy description, decide which `aicoin_data` to include:
+All `aicoin_data` options require a paid API key. Based on the user's strategy description:
 
-- **Free tier data** (`funding_rate`, `ls_ratio`): Use freely whenever the strategy logic calls for it. No key configuration needed.
-- **Paid tier data** (`big_orders`, `open_interest`, `liquidation_map`):
+- **If strategy needs AiCoin data** (`funding_rate`, `ls_ratio`, `big_orders`, `open_interest`, `liquidation_map`):
   1. **Do NOT silently include it.** First inform the user that this data requires a paid API key.
   2. Tell them which tier is needed (see table above).
   3. Guide them: get API key at https://www.aicoin.com/opendata → add `AICOIN_ACCESS_KEY_ID` & `AICOIN_ACCESS_SECRET` to `.env`.
   4. Only include the paid data after user confirms they have the key configured.
+- **If strategy does NOT need AiCoin data**: Generate a pure technical indicator strategy (RSI, EMA, Bollinger, etc.) — works for everyone out of the box.
 
 **After generating, backtest immediately:**
 ```bash
@@ -73,7 +73,31 @@ node scripts/ft-deploy.mjs backtest '{"strategy":"MyStrategy","timeframe":"15m",
 
 ## Setup
 
-**Prerequisites:** Python 3.11+ and git. Exchange API keys in `.env`.
+**Prerequisites:** Python 3.11+ and git.
+
+### Environment Variables
+
+`.env` auto-loaded from (first found wins):
+1. Current working directory
+2. `~/.openclaw/workspace/.env`
+3. `~/.openclaw/.env`
+
+**Exchange keys** (required for live/dry-run trading):
+```
+# Same format as aicoin-trading skill
+BINANCE_API_KEY=xxx
+BINANCE_API_SECRET=xxx
+# Or OKX, Bybit, etc. — see aicoin-trading skill for full list
+```
+
+**AiCoin API key** (required if strategy uses `aicoin_data`):
+```
+AICOIN_ACCESS_KEY_ID=your-key-id
+AICOIN_ACCESS_SECRET=your-secret
+```
+Get at https://www.aicoin.com/opendata. See [Paid Feature Guide](#paid-feature-guide) for tier details.
+
+### Deploy
 
 **Deploy is one command:**
 ```bash
@@ -155,7 +179,7 @@ This automatically: clones Freqtrade, runs `setup.sh -i`, creates config from `.
 ## Built-in AiCoin Strategies
 
 Auto-installed on deploy:
-- **FundingRateStrategy** — Exploit extreme funding rates for mean reversion (Free tier)
+- **FundingRateStrategy** — Exploit extreme funding rates for mean reversion (Basic tier)
 - **WhaleFollowStrategy** — Follow whale order flow + contrarian L/S ratio (Standard tier)
 - **LiquidationHunterStrategy** — Profit from liquidation cascades (Advanced tier)
 
@@ -188,15 +212,38 @@ Auto-installed on deploy:
 
 ## Common Errors
 
-- `errorCode 304 / 403` — AiCoin data endpoint needs a paid key. Do NOT retry. Guide user: get API key at https://www.aicoin.com/opendata, add `AICOIN_ACCESS_KEY_ID` & `AICOIN_ACCESS_SECRET` to `.env`. Tiers: Free $0 / Basic $29 / Standard $79 / Advanced $299 / Professional $699.
+- `errorCode 304 / HTTP 403` — Paid AiCoin feature. **Do NOT retry.** See [Paid Feature Guide](#paid-feature-guide) below.
 - `Python not found` — Need Python 3.11+. `ft-deploy.mjs check` validates this.
 - `Strategy not found` — Check `ft-deploy.mjs strategy_list`. File must be in `~/.freqtrade/user_data/strategies/`.
 - `Timerange format` — Use `YYYYMMDD-YYYYMMDD` (e.g., `20250101-20260301`).
 - `Timeout` — Freqtrade ops may take 5+ min. Use `ft-deploy.mjs` which handles timeouts.
 
+## Paid Feature Guide
+
+When a script returns 304 or 403: **Do NOT retry.** Tell the user:
+
+1. **What happened**: This AiCoin data feature needs a paid API subscription.
+2. **How to get a key**: Visit https://www.aicoin.com/opendata to register and create an API key.
+3. **Tier options** (for `aicoin_data` in strategies):
+
+| Tier | Price | Strategy Data |
+|------|-------|--------------|
+| Free | $0 | Pure technical indicators only (no `aicoin_data`) |
+| Basic | $29/mo | + `funding_rate`, `ls_ratio` |
+| Standard | $79/mo | + `big_orders` |
+| Advanced | $299/mo | + `liquidation_map` |
+| Professional | $699/mo | + `open_interest` |
+
+4. **How to configure**: Add to `.env` file:
+```
+AICOIN_ACCESS_KEY_ID=your-key-id
+AICOIN_ACCESS_SECRET=your-secret
+```
+5. `.env` auto-loaded from: cwd → `~/.openclaw/workspace/.env` → `~/.openclaw/.env`. After configuring, the same script command will work.
+
 ## Troubleshooting
 
 1. Check Python: `python3 --version` (need 3.11+)
 2. Check logs: `node scripts/ft-deploy.mjs logs`
-3. Verify exchange keys in `~/.openclaw/workspace/.env`
+3. Verify exchange keys in `.env` (see [Setup](#setup))
 4. DO NOT try manual fixes — report error, let ft-deploy.mjs handle it
