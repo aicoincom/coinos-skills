@@ -1,6 +1,6 @@
 ---
 name: aicoin-trading
-description: "This skill should be used when the user asks about exchange trading, placing orders, checking balance, viewing positions, order history, market list, leverage, margin mode, transferring funds, or automated trading. Use when user says: 'buy BTC', 'sell ETH', 'check balance', 'place order', 'open long', 'open short', 'close position', 'set leverage', 'auto trade', 'view positions', '下单', '买入', '卖出', '查余额', '做多', '做空', '平仓', '设杠杆', '自动交易', '合约交易', '现货交易'. Supports Binance, OKX, Bybit, Bitget, Gate.io, HTX, KuCoin, MEXC, Coinbase, Hyperliquid. For crypto prices/charts/news, use aicoin-market. For Freqtrade strategies, use aicoin-freqtrade. For Hyperliquid whale tracking/analytics (not trading), use aicoin-hyperliquid."
+description: "This skill should be used when the user asks about exchange trading, placing orders, checking balance, viewing positions, order history, market list, leverage, margin mode, transferring funds, or automated trading. Use when user says: 'buy BTC', 'sell ETH', 'check balance', 'place order', 'open long', 'open short', 'close position', 'set leverage', 'auto trade', 'view positions', '下单', '买入', '卖出', '查余额', '做多', '做空', '平仓', '设杠杆', '自动交易', '合约交易', '现货交易'. Supports Binance, OKX, Bybit, Bitget, Gate.io, HTX, Pionex, Hyperliquid. For crypto prices/charts/news, use aicoin-market. For Freqtrade strategies, use aicoin-freqtrade. For Hyperliquid whale tracking/analytics (not trading), use aicoin-hyperliquid."
 metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "bins": ["node"] }, "homepage": "https://www.aicoin.com/opendata", "source": "https://github.com/aicoincom/coinos-skills", "license": "MIT" } }
 ---
 
@@ -31,7 +31,7 @@ Exchange trading toolkit powered by [AiCoin Open API](https://www.aicoin.com/ope
 | Set leverage | `node scripts/exchange.mjs set_leverage '{"exchange":"okx","symbol":"BTC/USDT:USDT","leverage":10,"market_type":"swap"}'` |
 | Auto-trade setup | `node scripts/auto-trade.mjs setup '{"exchange":"okx","symbol":"BTC/USDT:USDT","leverage":10,"capital_pct":0.5}'` |
 
-**Supported Exchanges:** Binance, OKX, Bybit, Bitget, Gate.io, HTX, KuCoin, MEXC, Coinbase, Hyperliquid.
+**Supported Exchanges:** Binance, OKX, Bybit, Bitget, Gate.io, HTX, Pionex, Hyperliquid.
 
 **Symbol format:** CCXT format — `BTC/USDT` (spot), `BTC/USDT:USDT` (swap/futures).
 
@@ -56,13 +56,11 @@ All CEX use the same pattern — go to exchange API management page, create API 
 | Bitget | https://www.bitget.com/account/newapi |
 | Gate.io | https://www.gate.io/myaccount/apikeys |
 | HTX | https://www.htx.com/en-us/apikey/ |
-| KuCoin | https://www.kucoin.com/account/api |
-| MEXC | https://www.mexc.com/user/openapi |
-| Coinbase | https://www.coinbase.com/settings/api |
+| Pionex | https://www.pionex.com/account/api |
 
 ```
 # Format: {EXCHANGE}_API_KEY / {EXCHANGE}_API_SECRET
-# Supported: BINANCE, OKX, BYBIT, BITGET, GATE, HTX, KUCOIN, MEXC, COINBASE
+# Supported: BINANCE, OKX, BYBIT, BITGET, GATE, HTX, PIONEX
 BINANCE_API_KEY=xxx
 BINANCE_API_SECRET=xxx
 
