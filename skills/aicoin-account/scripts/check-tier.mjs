@@ -37,7 +37,7 @@ const TIER_TESTS = [
   { tier: '免费版',   endpoint: '/api/v2/coin/ticker', params: { coin_list: 'bitcoin' }, label: '行情数据' },
   { tier: '基础版',   endpoint: '/api/v2/mix/ls-ratio', params: {}, label: '多空比' },
   { tier: '标准版',   endpoint: '/api/v2/order/bigOrder', params: { symbol: 'btcswapusdt:binance' }, label: '大单数据' },
-  { tier: '高级版',   endpoint: '/api/upgrade/v2/futures/liquidation/map', params: { symbol: 'btcswapusdt:binance', cycle: '24h' }, label: '清算地图' },
+  { tier: '高级版',   endpoint: '/api/upgrade/v2/futures/liquidation/map', params: { dbkey: 'btcswapusdt:binance', cycle: '24h' }, label: '清算地图' },
   { tier: '专业版',   endpoint: '/api/upgrade/v2/futures/trade-data', params: { dbkey: 'btcswapusdt:binance' }, label: 'OI持仓量' },
 ];
 
@@ -92,16 +92,17 @@ async function checkTier() {
   }
 
   // Fallback: if api-key-info didn't return a tier, infer from endpoint tests
-  // Use sequential logic: tier = highest where ALL previous tiers also pass
+  // Only break on actual permission errors (❌ 需升级), skip network errors
   if (!keyInfo || !keyInfo.vip_type) {
     let inferred = '免费版';
     for (const test of TIER_TESTS) {
       const r = results.find(r => r.套餐 === test.tier);
       if (r && r.状态 === '✅ 可用') {
         inferred = test.tier;
-      } else {
-        break;
+      } else if (r && r.状态 === '❌ 需升级') {
+        break; // actual permission denial — stop here
       }
+      // ⚠️ 网络错误 — skip and continue checking higher tiers
     }
     currentTier = inferred;
   }

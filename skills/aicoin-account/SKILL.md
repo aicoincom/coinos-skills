@@ -4,6 +4,8 @@ description: "Exchange account management: balance, positions, order history, re
 metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "bins": ["node"] }, "homepage": "https://www.aicoin.com/opendata", "source": "https://github.com/aicoincom/coinos-skills", "license": "MIT" } }
 ---
 
+> **⚠️ 运行脚本: 所有 `node scripts/...` 命令必须以本 SKILL.md 所在目录为 workdir。**
+
 # AiCoin Account
 
 Exchange account queries and API key management. Safe read-only operations.

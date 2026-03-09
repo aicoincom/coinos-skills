@@ -4,6 +4,8 @@ description: "Use when user asks about writing trading strategies, backtesting, 
 metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "bins": ["node"] }, "homepage": "https://www.aicoin.com/opendata", "source": "https://github.com/aicoincom/coinos-skills", "license": "MIT" } }
 ---
 
+> **⚠️ 运行脚本: 所有 `node scripts/...` 命令必须以本 SKILL.md 所在目录为 workdir。**
+
 # AiCoin Freqtrade
 
 Freqtrade strategy creation, backtesting, and deployment powered by [AiCoin Open API](https://www.aicoin.com/opendata).
