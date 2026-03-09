@@ -483,7 +483,7 @@ const actions = {
     const dest = resolve(STRAT_DIR, `${name}.py`);
     const tf = params.timeframe || '15m';
     const desc = params.description || 'Custom strategy';
-    const PAID_DATA = { funding_rate: 'Basic ($29/mo)', ls_ratio: 'Basic ($29/mo)', big_orders: 'Standard ($79/mo)', open_interest: 'Professional ($699/mo)', liquidation_map: 'Advanced ($299/mo)' };
+    const PAID_DATA = { funding_rate: '基础版 ($29/mo)', ls_ratio: '基础版 ($29/mo)', big_orders: '标准版 ($79/mo)', open_interest: '专业版 ($699/mo)', liquidation_map: '高级版 ($299/mo)' };
     const ds = new Set(params.aicoin_data || []);
     const indicators = params.indicators || null;  // null = use defaults (rsi, bb, ema, volume_sma)
     const entryLogic = params.entry_logic || null;
@@ -520,7 +520,7 @@ const actions = {
         ? `Strategy uses AiCoin data (${[...ds].join(', ')}) in live/dry_run. Falls back to pure technical indicators in backtest.`
         : 'Pure technical indicator strategy. To add AiCoin data, pass aicoin_data array.',
       available_indicators: AVAILABLE_INDICATORS,
-      available_aicoin_data: ['funding_rate (Free)', 'ls_ratio (Free)', 'big_orders (Standard)', 'open_interest (Professional)', 'liquidation_map (Advanced)'],
+      available_aicoin_data: ['funding_rate (免费版)', 'ls_ratio (免费版)', 'big_orders (标准版)', 'open_interest (专业版)', 'liquidation_map (高级版)'],
     };
 
     if (usingFreeKey && paidUsed.length > 0) {

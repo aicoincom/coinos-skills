@@ -43,11 +43,11 @@ const result = {
           '.env 文件位置：当前目录、~/.openclaw/workspace/.env 或 ~/.openclaw/.env',
         ],
         tier_options: [
-          { tier: 'Free',         price: '$0',     highlights: '价格、K线、热门币' },
-          { tier: 'Basic',        price: '$29/mo',  highlights: '+ 资金费率、多空比、新闻' },
-          { tier: 'Standard',     price: '$79/mo',  highlights: '+ 鲸鱼单、信号、灰度' },
-          { tier: 'Advanced',     price: '$299/mo', highlights: '+ 爆仓热力图、指标K线' },
-          { tier: 'Professional', price: '$699/mo', highlights: '全部接口：AI分析、OI、美股' },
+          { tier: '免费版',     price: '$0',     highlights: '价格、K线、热门币' },
+          { tier: '基础版',     price: '$29/mo',  highlights: '+ 资金费率、多空比、新闻' },
+          { tier: '标准版',     price: '$79/mo',  highlights: '+ 鲸鱼单、信号、灰度' },
+          { tier: '高级版',     price: '$299/mo', highlights: '+ 爆仓热力图、指标K线' },
+          { tier: '专业版',     price: '$699/mo', highlights: '全部接口：AI分析、OI、美股' },
         ],
       },
   security_notice: {

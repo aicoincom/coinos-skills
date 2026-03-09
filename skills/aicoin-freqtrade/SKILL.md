@@ -50,20 +50,20 @@ ac.coin_ticker("bitcoin")             # Real-time price
 ac.kline(symbol, period="3600")       # K-line data (period in seconds)
 ac.hot_coins("market")                # Trending coins
 
-# ── Basic tier ($29/mo) ──
+# ── 基础版 ($29/mo) ──
 ac.funding_rate(symbol)               # Funding rate history
 ac.funding_rate(symbol, weighted=True) # Volume-weighted cross-exchange rate
 ac.ls_ratio()                         # Aggregated long/short ratio
 
-# ── Standard tier ($79/mo) ──
+# ── 标准版 ($79/mo) ──
 ac.big_orders(symbol)                 # Whale/large orders
 ac.agg_trades(symbol)                 # Aggregated large trades
 
-# ── Advanced tier ($299/mo) ──
+# ── 高级版 ($299/mo) ──
 ac.liquidation_map(symbol, cycle="24h")    # Liquidation heatmap
 ac.liquidation_history(symbol)              # Liquidation history
 
-# ── Professional tier ($699/mo) ──
+# ── 专业版 ($699/mo) ──
 ac.open_interest("BTC", interval="15m")    # Aggregated open interest
 ac.ai_analysis(["BTC"])                     # AI-powered analysis
 ```
@@ -151,7 +151,7 @@ class MyCustomStrategy(IStrategy):
             exchange = self.config.get('exchange', {}).get('name', 'binance')
             symbol = ccxt_to_aicoin(pair, exchange)
 
-            # Funding rate (Basic tier)
+            # Funding rate (基础版)
             try:
                 data = ac.funding_rate(symbol, weighted=True, limit='5')
                 items = data.get('data', [])
@@ -162,7 +162,7 @@ class MyCustomStrategy(IStrategy):
             except Exception as e:
                 logger.debug(f"AiCoin funding_rate unavailable: {e}")
 
-            # Long/short ratio (Basic tier)
+            # Long/short ratio (基础版)
             try:
                 ls = ac.ls_ratio()
                 detail = ls.get('data', {}).get('detail', {})
@@ -172,7 +172,7 @@ class MyCustomStrategy(IStrategy):
             except Exception as e:
                 logger.debug(f"AiCoin ls_ratio unavailable: {e}")
 
-            # Whale orders (Standard tier)
+            # Whale orders (标准版)
             try:
                 orders = ac.big_orders(symbol)
                 if 'data' in orders and isinstance(orders['data'], list):
@@ -226,11 +226,11 @@ Use these patterns to integrate specific AiCoin data into entry/exit conditions:
 
 | AiCoin Data | Signal Logic | Tier |
 |-------------|-------------|------|
-| `funding_rate` | Rate > 0.01% → market over-leveraged long → short signal; Rate < -0.01% → long signal | Basic |
-| `ls_ratio` | Ratio < 0.45 (more shorts) → contrarian long; Ratio > 0.55 (more longs) → contrarian short | Basic |
-| `big_orders` | `(buy_vol - sell_vol) / total > 0.3` → whale buying → long; `< -0.3` → short | Standard |
-| `open_interest` | OI rising + price rising = healthy trend; OI rising + price falling = weak, likely reversal | Professional |
-| `liquidation_map` | More short liquidations above → short squeeze likely → long; vice versa | Advanced |
+| `funding_rate` | Rate > 0.01% → market over-leveraged long → short signal; Rate < -0.01% → long signal | 基础版 |
+| `ls_ratio` | Ratio < 0.45 (more shorts) → contrarian long; Ratio > 0.55 (more longs) → contrarian short | 基础版 |
+| `big_orders` | `(buy_vol - sell_vol) / total > 0.3` → whale buying → long; `< -0.3` → short | 标准版 |
+| `open_interest` | OI rising + price rising = healthy trend; OI rising + price falling = weak, likely reversal | 专业版 |
+| `liquidation_map` | More short liquidations above → short squeeze likely → long; vice versa | 高级版 |
 
 ### Key Rule: Backtest Behavior
 
@@ -309,10 +309,10 @@ When 304/403: **Do NOT retry.** Guide the user:
 
 | Tier | Price | Data for Strategies |
 |------|-------|---------------------|
-| Free | $0 | Pure technical indicators |
-| Basic | $29/mo | + `funding_rate`, `ls_ratio` |
-| Standard | $79/mo | + `big_orders`, `agg_trades` |
-| Advanced | $299/mo | + `liquidation_map` |
-| Professional | $699/mo | + `open_interest`, `ai_analysis` |
+| 免费版 | $0 | Pure technical indicators |
+| 基础版 | $29/mo | + `funding_rate`, `ls_ratio` |
+| 标准版 | $79/mo | + `big_orders`, `agg_trades` |
+| 高级版 | $299/mo | + `liquidation_map` |
+| 专业版 | $699/mo | + `open_interest`, `ai_analysis` |
 
 Configure: `AICOIN_ACCESS_KEY_ID` + `AICOIN_ACCESS_SECRET` in `.env`

@@ -23,16 +23,16 @@ Crypto market data toolkit powered by [AiCoin Open API](https://www.aicoin.com/o
 
 | Task | Command | Min Tier |
 |------|---------|----------|
-| **API Key Info** | `node scripts/coin.mjs api_key_info` — **When user asks about AiCoin API key (配置/安全/能不能下单), ALWAYS run this first.** | Free |
-| BTC price | `node scripts/coin.mjs coin_ticker '{"coin_list":"bitcoin"}'` | Free |
-| K-line | `node scripts/market.mjs kline '{"symbol":"btcusdt:okex","period":"3600","size":"100"}'` | Free |
-| Funding rate | `node scripts/coin.mjs funding_rate '{"symbol":"BTC"}'` | Basic |
-| Long/short ratio | `node scripts/features.mjs ls_ratio` | Basic |
-| Whale orders | `node scripts/features.mjs big_orders '{"symbol":"btcswapusdt:binance"}'` | Standard |
-| News flash | `node scripts/news.mjs flash_list '{"language":"cn"}'` | Basic |
-| Trending coins | `node scripts/market.mjs hot_coins '{"key":"defi"}'` | Free |
-| Open interest | `node scripts/coin.mjs open_interest '{"symbol":"BTC","interval":"15m"}'` | Professional |
-| Liquidation map | `node scripts/coin.mjs liquidation_map '{"dbkey":"btcswapusdt:binance","cycle":"24h"}'` | Advanced |
+| **API Key Info** | `node scripts/coin.mjs api_key_info` — **When user asks about AiCoin API key (配置/安全/能不能下单), ALWAYS run this first.** | 免费版 |
+| BTC price | `node scripts/coin.mjs coin_ticker '{"coin_list":"bitcoin"}'` | 免费版 |
+| K-line | `node scripts/market.mjs kline '{"symbol":"btcusdt:okex","period":"3600","size":"100"}'` | 免费版 |
+| Funding rate | `node scripts/coin.mjs funding_rate '{"symbol":"BTC"}'` | 基础版 |
+| Long/short ratio | `node scripts/features.mjs ls_ratio` | 基础版 |
+| Whale orders | `node scripts/features.mjs big_orders '{"symbol":"btcswapusdt:binance"}'` | 标准版 |
+| News flash | `node scripts/news.mjs flash_list '{"language":"cn"}'` | 基础版 |
+| Trending coins | `node scripts/market.mjs hot_coins '{"key":"defi"}'` | 免费版 |
+| Open interest | `node scripts/coin.mjs open_interest '{"symbol":"BTC","interval":"15m"}'` | 专业版 |
+| Liquidation map | `node scripts/coin.mjs liquidation_map '{"dbkey":"btcswapusdt:binance","cycle":"24h"}'` | 高级版 |
 
 **Symbol shortcuts:** `BTC`, `ETH`, `SOL`, `DOGE`, `XRP` auto-resolve in coin.mjs.
 
@@ -42,13 +42,13 @@ Crypto market data toolkit powered by [AiCoin Open API](https://www.aicoin.com/o
 
 **Free (built-in key, no config needed):** `coin_ticker`, `kline`, `hot_coins`, `exchanges`, `pair_ticker`, `news_rss` — only 6 endpoints.
 
-**Basic ($29/mo) adds:** `coin_list`, `coin_config`, `funding_rate`, `trade_data`, `ticker`, `futures_interest`, `ls_ratio`, `nav`, `pair_by_market`, `pair_list`, `news_list`, `flash_list`, `twitter/latest`, `twitter/search`, `newsflash/search`, `newsflash/list`
+**基础版 ($29/mo) adds:** `coin_list`, `coin_config`, `funding_rate`, `trade_data`, `ticker`, `futures_interest`, `ls_ratio`, `nav`, `pair_by_market`, `pair_list`, `news_list`, `flash_list`, `twitter/latest`, `twitter/search`, `newsflash/search`, `newsflash/list`
 
-**Standard ($79/mo) adds:** `big_orders`, `agg_trades`, `grayscale_trust`, `gray_scale`, `signal_alert`, `signal_config`, `strategy_signal`, `change_signal`, `depth_latest`, `newsflash`, `news_detail`, `twitter/members`, `twitter/interaction_stats`, `newsflash/detail`
+**标准版 ($79/mo) adds:** `big_orders`, `agg_trades`, `grayscale_trust`, `gray_scale`, `signal_alert`, `signal_config`, `strategy_signal`, `change_signal`, `depth_latest`, `newsflash`, `news_detail`, `twitter/members`, `twitter/interaction_stats`, `newsflash/detail`
 
-**Advanced ($299/mo) adds:** `liquidation_map`, `liquidation_history`, `liquidation`, `indicator_kline`, `indicator_pairs`, `index_list`, `index_price`, `index_info`, `depth_full`, `depth_grouped`
+**高级版 ($299/mo) adds:** `liquidation_map`, `liquidation_history`, `liquidation`, `indicator_kline`, `indicator_pairs`, `index_list`, `index_price`, `index_info`, `depth_full`, `depth_grouped`
 
-**Professional ($699/mo) adds:** `ai_analysis`, `open_interest`, `estimated_liquidation`, `historical_depth`, `super_depth`, `funding_rate`(weighted), `stock_quotes`, `stock_top_gainer`, `stock_company`, `treasury_*`, `stock_market`, `signal_alert_list`, `exchange_listing`
+**专业版 ($699/mo) adds:** `ai_analysis`, `open_interest`, `estimated_liquidation`, `historical_depth`, `super_depth`, `funding_rate`(weighted), `stock_quotes`, `stock_top_gainer`, `stock_company`, `treasury_*`, `stock_market`, `signal_alert_list`, `exchange_listing`
 
 Full tier table: `docs/api-tiers.md`
 
@@ -73,106 +73,106 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 
 | Action | Description | Min Tier | Params |
 |--------|-------------|----------|--------|
-| `api_key_info` | **AiCoin API Key status + security notice. Run when user asks about key config/safety.** | Free | None |
-| `coin_ticker` | Real-time prices | Free | `{"coin_list":"bitcoin,ethereum"}` |
-| `coin_list` | List all coins | Basic | None |
-| `coin_config` | Coin profile | Basic | `{"coin_list":"bitcoin"}` |
-| `funding_rate` | Funding rate (BTC only, aggregated) | Basic | `{"symbol":"BTC","interval":"8h"}` Weighted: add `"weighted":"true"` (Pro). For per-exchange real-time rates, use **aicoin-trading**: `node scripts/exchange.mjs funding_rate '{"exchange":"binance","symbol":"BTC/USDT:USDT"}'` |
-| `trade_data` | Trade data | Basic | `{"symbol":"btcswapusdt:okcoinfutures"}` |
-| `ai_analysis` | AI analysis & prediction | Pro | `{"coin_keys":"[\"bitcoin\"]","language":"CN"}` |
-| `open_interest` | Open interest | Pro | `{"symbol":"BTC","interval":"15m"}` Coin-margined: add `"margin_type":"coin"` |
-| `liquidation_map` | Liquidation heatmap | Adv | `{"symbol":"btcswapusdt:binance","cycle":"24h"}` |
-| `liquidation_history` | Liquidation history | Adv | `{"symbol":"btcswapusdt:binance","interval":"1m"}` |
-| `estimated_liquidation` | Estimated liquidation | Pro | `{"symbol":"btcswapusdt:binance","cycle":"24h"}` |
-| `historical_depth` | Historical depth | Pro | `{"symbol":"btcswapusdt:okcoinfutures"}` |
-| `super_depth` | Large order depth >$10k | Pro | `{"symbol":"btcswapusdt:okcoinfutures"}` |
+| `api_key_info` | **AiCoin API Key status + security notice. Run when user asks about key config/safety.** | 免费版 | None |
+| `coin_ticker` | Real-time prices | 免费版 | `{"coin_list":"bitcoin,ethereum"}` |
+| `coin_list` | List all coins | 基础版 | None |
+| `coin_config` | Coin profile | 基础版 | `{"coin_list":"bitcoin"}` |
+| `funding_rate` | Funding rate (BTC only, aggregated) | 基础版 | `{"symbol":"BTC","interval":"8h"}` Weighted: add `"weighted":"true"` (专业版). For per-exchange real-time rates, use **aicoin-trading**: `node scripts/exchange.mjs funding_rate '{"exchange":"binance","symbol":"BTC/USDT:USDT"}'` |
+| `trade_data` | Trade data | 基础版 | `{"symbol":"btcswapusdt:okcoinfutures"}` |
+| `ai_analysis` | AI analysis & prediction | 专业版 | `{"coin_keys":"[\"bitcoin\"]","language":"CN"}` |
+| `open_interest` | Open interest | 专业版 | `{"symbol":"BTC","interval":"15m"}` Coin-margined: add `"margin_type":"coin"` |
+| `liquidation_map` | Liquidation heatmap | 高级版 | `{"symbol":"btcswapusdt:binance","cycle":"24h"}` |
+| `liquidation_history` | Liquidation history | 高级版 | `{"symbol":"btcswapusdt:binance","interval":"1m"}` |
+| `estimated_liquidation` | Estimated liquidation | 专业版 | `{"symbol":"btcswapusdt:binance","cycle":"24h"}` |
+| `historical_depth` | Historical depth | 专业版 | `{"symbol":"btcswapusdt:okcoinfutures"}` |
+| `super_depth` | Large order depth >$10k | 专业版 | `{"symbol":"btcswapusdt:okcoinfutures"}` |
 
 ### scripts/market.mjs — Market Data
 
 | Action | Description | Min Tier | Params |
 |--------|-------------|----------|--------|
-| `kline` | Standard K-line | Free | `{"symbol":"btcusdt:okex","period":"3600","size":"100"}` period: 900/3600/14400/86400 |
-| `hot_coins` | Trending coins | Free | `{"key":"defi"}` key: gamefi/anonymous/market/web/newcoin/stable/defi |
-| `exchanges` | Exchange list | Free | None |
-| `ticker` | Exchange tickers | Basic | `{"market_list":"okex,binance"}` |
-| `futures_interest` | Futures OI ranking | Basic | `{"language":"cn"}` |
-| `depth_latest` | Real-time depth | Std | `{"symbol":"btcswapusdt:binance"}` |
-| `indicator_kline` | Indicator K-line | Adv | `{"symbol":"btcswapusdt:binance","indicator_key":"fundflow","period":"3600"}` |
-| `indicator_pairs` | Indicator pairs | Adv | `{"indicator_key":"fundflow"}` |
-| `index_list` | Index list | Adv | None |
-| `index_price` | Index price | Adv | `{"key":"i:diniw:ice"}` |
-| `index_info` | Index details | Adv | `{"key":"i:diniw:ice"}` |
-| `depth_full` | Full order book | Adv | `{"symbol":"btcswapusdt:binance"}` |
-| `depth_grouped` | Grouped depth | Adv | `{"symbol":"btcswapusdt:binance","groupSize":"100"}` |
-| `stock_quotes` | Stock quotes | Pro | `{"tickers":"i:mstr:nasdaq"}` |
-| `stock_top_gainer` | Top gainers | Pro | `{"us_stock":"true"}` |
-| `stock_company` | Company details | Pro | `{"symbol":"i:mstr:nasdaq"}` |
-| `treasury_entities` | Holding entities | Pro | `{"coin":"BTC"}` |
-| `treasury_history` | Transaction history | Pro | `{"coin":"BTC"}` |
-| `treasury_accumulated` | Accumulated holdings | Pro | `{"coin":"BTC"}` |
-| `treasury_latest_entities` | Latest entities | Pro | `{"coin":"BTC"}` |
-| `treasury_latest_history` | Latest history | Pro | `{"coin":"BTC"}` |
-| `treasury_summary` | Holdings overview | Pro | `{"coin":"BTC"}` |
+| `kline` | Standard K-line | 免费版 | `{"symbol":"btcusdt:okex","period":"3600","size":"100"}` period: 900/3600/14400/86400 |
+| `hot_coins` | Trending coins | 免费版 | `{"key":"defi"}` key: gamefi/anonymous/market/web/newcoin/stable/defi |
+| `exchanges` | Exchange list | 免费版 | None |
+| `ticker` | Exchange tickers | 基础版 | `{"market_list":"okex,binance"}` |
+| `futures_interest` | Futures OI ranking | 基础版 | `{"language":"cn"}` |
+| `depth_latest` | Real-time depth | 标准版 | `{"symbol":"btcswapusdt:binance"}` |
+| `indicator_kline` | Indicator K-line | 高级版 | `{"symbol":"btcswapusdt:binance","indicator_key":"fundflow","period":"3600"}` |
+| `indicator_pairs` | Indicator pairs | 高级版 | `{"indicator_key":"fundflow"}` |
+| `index_list` | Index list | 高级版 | None |
+| `index_price` | Index price | 高级版 | `{"key":"i:diniw:ice"}` |
+| `index_info` | Index details | 高级版 | `{"key":"i:diniw:ice"}` |
+| `depth_full` | Full order book | 高级版 | `{"symbol":"btcswapusdt:binance"}` |
+| `depth_grouped` | Grouped depth | 高级版 | `{"symbol":"btcswapusdt:binance","groupSize":"100"}` |
+| `stock_quotes` | Stock quotes | 专业版 | `{"tickers":"i:mstr:nasdaq"}` |
+| `stock_top_gainer` | Top gainers | 专业版 | `{"us_stock":"true"}` |
+| `stock_company` | Company details | 专业版 | `{"symbol":"i:mstr:nasdaq"}` |
+| `treasury_entities` | Holding entities | 专业版 | `{"coin":"BTC"}` |
+| `treasury_history` | Transaction history | 专业版 | `{"coin":"BTC"}` |
+| `treasury_accumulated` | Accumulated holdings | 专业版 | `{"coin":"BTC"}` |
+| `treasury_latest_entities` | Latest entities | 专业版 | `{"coin":"BTC"}` |
+| `treasury_latest_history` | Latest history | 专业版 | `{"coin":"BTC"}` |
+| `treasury_summary` | Holdings overview | 专业版 | `{"coin":"BTC"}` |
 
 ### scripts/features.mjs — Features & Signals
 
 | Action | Description | Min Tier | Params |
 |--------|-------------|----------|--------|
-| `pair_ticker` | Pair ticker | Free | `{"key_list":"btcusdt:okex,btcusdt:huobipro"}` |
-| `ls_ratio` | Long/short ratio | Basic | None |
-| `nav` | Market navigation | Basic | `{"language":"cn"}` |
-| `pair_by_market` | Pairs by exchange | Basic | `{"market":"binance"}` |
-| `pair_list` | Pair list | Basic | `{"market":"binance","currency":"USDT"}` |
-| `grayscale_trust` | Grayscale trust | Std | None |
-| `gray_scale` | Grayscale holdings | Std | `{"coins":"btc,eth"}` |
-| `signal_alert` | Signal alerts | Std | None |
-| `signal_config` | Alert config | Std | `{"language":"cn"}` |
-| `strategy_signal` | Strategy signal | Std | `{"signal_key":"depth_win_one"}` |
-| `change_signal` | Anomaly signal | Std | `{"type":"1"}` |
-| `big_orders` | Whale orders | Std | `{"symbol":"btcswapusdt:binance"}` |
-| `agg_trades` | Aggregated large trades | Std | `{"symbol":"btcswapusdt:binance"}` |
-| `liquidation` | Liquidation data | Adv | `{"type":"1","coinKey":"bitcoin"}` |
-| `signal_alert_list` | Alert list | Pro | None |
-| `stock_market` | Crypto stocks | Pro | None |
-| `delete_signal` | Delete alert | Pro | `{"id":"xxx"}` |
+| `pair_ticker` | Pair ticker | 免费版 | `{"key_list":"btcusdt:okex,btcusdt:huobipro"}` |
+| `ls_ratio` | Long/short ratio | 基础版 | None |
+| `nav` | Market navigation | 基础版 | `{"language":"cn"}` |
+| `pair_by_market` | Pairs by exchange | 基础版 | `{"market":"binance"}` |
+| `pair_list` | Pair list | 基础版 | `{"market":"binance","currency":"USDT"}` |
+| `grayscale_trust` | Grayscale trust | 标准版 | None |
+| `gray_scale` | Grayscale holdings | 标准版 | `{"coins":"btc,eth"}` |
+| `signal_alert` | Signal alerts | 标准版 | None |
+| `signal_config` | Alert config | 标准版 | `{"language":"cn"}` |
+| `strategy_signal` | Strategy signal | 标准版 | `{"signal_key":"depth_win_one"}` |
+| `change_signal` | Anomaly signal | 标准版 | `{"type":"1"}` |
+| `big_orders` | Whale orders | 标准版 | `{"symbol":"btcswapusdt:binance"}` |
+| `agg_trades` | Aggregated large trades | 标准版 | `{"symbol":"btcswapusdt:binance"}` |
+| `liquidation` | Liquidation data | 高级版 | `{"type":"1","coinKey":"bitcoin"}` |
+| `signal_alert_list` | Alert list | 专业版 | None |
+| `stock_market` | Crypto stocks | 专业版 | None |
+| `delete_signal` | Delete alert | 专业版 | `{"id":"xxx"}` |
 
 ### scripts/news.mjs — News & Content
 
 | Action | Description | Min Tier | Params |
 |--------|-------------|----------|--------|
-| `news_rss` | RSS news feed | Free | `{"page":"1"}` |
-| `news_list` | News list | Basic | `{"page":"1","page_size":"20"}` |
-| `flash_list` | Industry flash news | Basic | `{"language":"cn"}` |
-| `newsflash` | AiCoin flash news | Std | `{"language":"cn"}` |
-| `news_detail` | News detail | Std | `{"id":"xxx"}` |
-| `exchange_listing` | Exchange listing announcements | Pro | `{"memberIds":"477,1509"}` |
+| `news_rss` | RSS news feed | 免费版 | `{"page":"1"}` |
+| `news_list` | News list | 基础版 | `{"page":"1","page_size":"20"}` |
+| `flash_list` | Industry flash news | 基础版 | `{"language":"cn"}` |
+| `newsflash` | AiCoin flash news | 标准版 | `{"language":"cn"}` |
+| `news_detail` | News detail | 标准版 | `{"id":"xxx"}` |
+| `exchange_listing` | Exchange listing announcements | 专业版 | `{"memberIds":"477,1509"}` |
 
 ### scripts/twitter.mjs — Twitter/X Crypto Tweets
 
 | Action | Description | Min Tier | Params |
 |--------|-------------|----------|--------|
-| `latest` | Latest crypto tweets | Basic | `{"language":"cn","page_size":"20"}` |
-| `search` | Search tweets | Basic | `{"keyword":"bitcoin","language":"cn","page_size":"20"}` |
-| `members` | Search KOL/users | Std | `{"keyword":"elon","page":"1","page_size":"20"}` |
-| `interaction_stats` | Tweet engagement stats | Std | `{"flash_ids":"123,456,789"}` |
+| `latest` | Latest crypto tweets | 基础版 | `{"language":"cn","page_size":"20"}` |
+| `search` | Search tweets | 基础版 | `{"keyword":"bitcoin","language":"cn","page_size":"20"}` |
+| `members` | Search KOL/users | 标准版 | `{"keyword":"elon","page":"1","page_size":"20"}` |
+| `interaction_stats` | Tweet engagement stats | 标准版 | `{"flash_ids":"123,456,789"}` |
 
 ### scripts/newsflash.mjs — Newsflash (OpenData)
 
 | Action | Description | Min Tier | Params |
 |--------|-------------|----------|--------|
-| `search` | Search newsflash | Basic | `{"keyword":"bitcoin","page":"1","page_size":"20"}` |
-| `list` | Newsflash list with filters | Basic | `{"page_size":"20","language":"cn"}` |
-| `detail` | Newsflash full content | Std | `{"flash_id":"123456"}` |
+| `search` | Search newsflash | 基础版 | `{"keyword":"bitcoin","page":"1","page_size":"20"}` |
+| `list` | Newsflash list with filters | 基础版 | `{"page_size":"20","language":"cn"}` |
+| `detail` | Newsflash full content | 标准版 | `{"flash_id":"123456"}` |
 
 ### scripts/airdrop.mjs — Airdrop (OpenData)
 
 | Action | Description | Min Tier | Params |
 |--------|-------------|----------|--------|
-| `list` | Airdrop projects list (multi-source) | Basic | `{"source":"all","status":"ongoing","page":"1","page_size":"20","exchange":"binance"}` |
-| `detail` | Airdrop detail (hodler/xlaunch) | Std | `{"type":"hodler","token":"SIGN"}` |
-| `banner` | Hot airdrop banners | Basic | `{"limit":"5"}` |
-| `exchanges` | Available exchanges and activity types | Basic | `{"lan":"cn"}` |
-| `calendar` | Airdrop calendar (year+month required) | Std | `{"year":"2026","month":"3"}` |
+| `list` | Airdrop projects list (multi-source) | 基础版 | `{"source":"all","status":"ongoing","page":"1","page_size":"20","exchange":"binance"}` |
+| `detail` | Airdrop detail (hodler/xlaunch) | 标准版 | `{"type":"hodler","token":"SIGN"}` |
+| `banner` | Hot airdrop banners | 基础版 | `{"limit":"5"}` |
+| `exchanges` | Available exchanges and activity types | 基础版 | `{"lan":"cn"}` |
+| `calendar` | Airdrop calendar (year+month required) | 标准版 | `{"year":"2026","month":"3"}` |
 
 **Source options for list:** `all`(default), `hodler`, `xlaunch`, `earncoin`, `alpha`, `bitget_launchpool`, `bitget_poolx`
 
@@ -180,15 +180,15 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 
 | Action | Description | Min Tier | Params |
 |--------|-------------|----------|--------|
-| `list` | Project list with filters | Basic | `{"page":"1","page_size":"20","status":"CONFIRMED","keyword":"airdrop"}` |
-| `detail` | Project detail | Basic | `{"airdrop_id":"xxx"}` |
-| `widgets` | Statistics overview | Basic | `{"lan":"cn"}` |
-| `filters` | Available filter options | Basic | `{"lan":"cn"}` |
-| `events` | Project event calendar | Std | `{"airdrop_id":"xxx"}` |
-| `team` | Project team members | Std | `{"airdrop_id":"xxx"}` |
-| `x_following` | Project X following list | Std | `{"airdrop_id":"xxx"}` |
-| `status_changes` | Recent status changes | Std | `{"days":"7","page":"1","page_size":"20"}` |
-| `tweets` | Search project tweets | Std | `{"keywords":"bitcoin,airdrop","page_size":"20"}` |
+| `list` | Project list with filters | 基础版 | `{"page":"1","page_size":"20","status":"CONFIRMED","keyword":"airdrop"}` |
+| `detail` | Project detail | 基础版 | `{"airdrop_id":"xxx"}` |
+| `widgets` | Statistics overview | 基础版 | `{"lan":"cn"}` |
+| `filters` | Available filter options | 基础版 | `{"lan":"cn"}` |
+| `events` | Project event calendar | 标准版 | `{"airdrop_id":"xxx"}` |
+| `team` | Project team members | 标准版 | `{"airdrop_id":"xxx"}` |
+| `x_following` | Project X following list | 标准版 | `{"airdrop_id":"xxx"}` |
+| `status_changes` | Recent status changes | 标准版 | `{"days":"7","page":"1","page_size":"20"}` |
+| `tweets` | Search project tweets | 标准版 | `{"keywords":"bitcoin,airdrop","page_size":"20"}` |
 
 ## Cross-Skill References
 
