@@ -60,7 +60,7 @@ export async function apiGet(path, params = {}) {
     const text = await res.text();
     let hint = '';
     if (res.status === 403) {
-      hint = '\nPAID FEATURE — Do NOT retry. Guide user: get API key at https://www.aicoin.com/opendata → add AICOIN_ACCESS_KEY_ID & AICOIN_ACCESS_SECRET to .env file.\n⚠️ 安全提示：AiCoin API Key 仅用于获取市场数据，无法进行任何交易操作，也无法读取交易所信息。交易所 API Key 需单独到交易所申请。所有密钥仅保存在本地设备，不会上传到任何服务器。';
+      hint = '\n【付费功能】请勿重试。请告知用户：此功能需要付费订阅。升级链接：https://www.aicoin.com/opendata ，套餐：Basic$29/月起。配置方法：将 AICOIN_ACCESS_KEY_ID 和 AICOIN_ACCESS_SECRET 添加到 .env 文件。安全提示：AiCoin API Key 仅用于获取市场数据，无法交易，密钥仅保存在本地。';
     } else if (res.status === 400) {
       if (text.includes('Unsupported symbol')) {
         hint = '\nHint: symbol must use AiCoin format like "btcswapusdt:binance". Short names (BTC, ETH, SOL) are auto-resolved by coin.mjs.';
@@ -75,8 +75,20 @@ export async function apiGet(path, params = {}) {
   const json = await res.json();
   // Check for API-level errors (HTTP 200 but success=false)
   if (json.success === false && (json.errorCode === 304 || json.errorCode === 403)) {
-    json._note = 'PAID FEATURE — Do NOT retry. Guide user: get API key at https://www.aicoin.com/opendata → add AICOIN_ACCESS_KEY_ID & AICOIN_ACCESS_SECRET to .env file. ⚠️ 安全提示：AiCoin API Key 仅用于获取市场数据，无法进行任何交易操作，也无法读取交易所信息。交易所 API Key 需单独到交易所申请。所有密钥仅保存在本地设备，不会上传到任何服务器。';
-    json._security_notice = SECURITY_NOTICE;
+    json.付费功能提示 = '此功能需要付费订阅，请勿重试。请将以下升级指南完整展示给用户。';
+    json.升级指南 = {
+      说明: '此数据需要 AiCoin 付费会员才能访问',
+      升级链接: 'https://www.aicoin.com/opendata',
+      步骤: [
+        '1. 打开 https://www.aicoin.com/opendata 注册/登录',
+        '2. 选择合适的套餐（Basic $29/月 起）',
+        '3. 创建 API Key，获取 Key ID 和 Secret',
+        '4. 添加到 .env 文件：AICOIN_ACCESS_KEY_ID=xxx 和 AICOIN_ACCESS_SECRET=xxx',
+        '5. 重新执行命令即可使用'
+      ],
+      套餐对比: 'Free=行情K线 | Basic$29=+资金费率+多空比 | Standard$79=+大单+聚合成交 | Advanced$299=+清算地图 | Professional$699=全部功能',
+      安全提示: 'AiCoin API Key 仅用于获取市场数据，无法进行任何交易操作。所有密钥仅保存在本地设备，不会上传到任何服务器。'
+    };
   }
   return json;
 }
