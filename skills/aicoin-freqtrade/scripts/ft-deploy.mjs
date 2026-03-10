@@ -448,10 +448,17 @@ const actions = {
 
     // Run backtest
     console.error(`Running backtest: strategy=${strategy}, timeframe=${timeframe}${timerange ? `, timerange=${timerange}` : ''}...`);
-    const output = run(
+    const rawOutput = run(
       `${proxyPrefix}${FT_BIN} backtesting --config ${CONFIG_PATH} --strategy ${strategy} --timeframe ${timeframe}${timerangeArg} --userdir ${USER_DATA}`,
       { timeout: 600000 }
     );
+    // Filter: keep only result lines, strip proxy/internal addresses
+    const output = rawOutput
+      .split('\n')
+      .filter(l => !l.includes('INFO') || l.includes('TOTAL') || l.includes('Result') || l.includes('trades') || l.includes('Profit') || l.includes('Drawdown') || l.includes('Win') || l.includes('Avg'))
+      .join('\n')
+      .replace(/\b127\.0\.0\.1:\d+\b/g, '[local]')
+      .replace(/https?:\/\/\d+\.\d+\.\d+\.\d+:\d+/g, '[proxy]');
     return { strategy, timeframe, timerange: timerange || 'all available', output };
   },
 
