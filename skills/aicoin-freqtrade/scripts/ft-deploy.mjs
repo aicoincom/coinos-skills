@@ -431,6 +431,10 @@ const actions = {
     const timeframe = params.timeframe || '1h';
     const timerange = params.timerange || '';
     const timerangeArg = timerange ? ` --timerange ${timerange}` : '';
+    const pairs = params.pairs; // e.g. ["ETH/USDT:USDT"] or "ETH/USDT:USDT"
+    const pairsArg = pairs
+      ? ` -p ${(Array.isArray(pairs) ? pairs : [pairs]).join(' ')}`
+      : '';
 
     const proxyEnv = process.env.PROXY_URL || process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
     const proxyPrefix = proxyEnv ? `env HTTPS_PROXY=${proxyEnv} HTTP_PROXY=${proxyEnv} ` : '';
@@ -439,7 +443,7 @@ const actions = {
     console.error('Downloading historical data...');
     try {
       run(
-        `${proxyPrefix}${FT_BIN} download-data --config ${CONFIG_PATH} --timeframe ${timeframe}${timerangeArg} --userdir ${USER_DATA}`,
+        `${proxyPrefix}${FT_BIN} download-data --config ${CONFIG_PATH} --timeframe ${timeframe}${timerangeArg}${pairsArg} --userdir ${USER_DATA}`,
         { timeout: 300000 }
       );
     } catch (e) {
@@ -449,7 +453,7 @@ const actions = {
     // Run backtest
     console.error(`Running backtest: strategy=${strategy}, timeframe=${timeframe}${timerange ? `, timerange=${timerange}` : ''}...`);
     const rawOutput = run(
-      `${proxyPrefix}${FT_BIN} backtesting --config ${CONFIG_PATH} --strategy ${strategy} --timeframe ${timeframe}${timerangeArg} --userdir ${USER_DATA}`,
+      `${proxyPrefix}${FT_BIN} backtesting --config ${CONFIG_PATH} --strategy ${strategy} --timeframe ${timeframe}${timerangeArg}${pairsArg} --userdir ${USER_DATA}`,
       { timeout: 600000 }
     );
     // Filter: keep only result lines, strip proxy/internal addresses

@@ -4,7 +4,7 @@ description: "Use when user asks about writing trading strategies, backtesting, 
 metadata: { "openclaw": { "primaryEnv": "AICOIN_ACCESS_KEY_ID", "requires": { "bins": ["node"] }, "homepage": "https://www.aicoin.com/opendata", "source": "https://github.com/aicoincom/coinos-skills", "license": "MIT" } }
 ---
 
-> **⚠️ 运行脚本: 所有 `node scripts/...` 命令必须以本 SKILL.md 所在目录为 workdir。**
+> **⚠️ 运行脚本: 必须先 cd 到本 SKILL.md 所在目录再执行。示例: `cd ~/.openclaw/workspace/skills/aicoin-freqtrade && node scripts/ft-deploy.mjs ...`**
 
 # AiCoin Freqtrade
 
@@ -248,7 +248,7 @@ Always explain this to the user when showing backtest results.
 | Task | Command |
 |------|---------|
 | Quick-generate strategy | `node scripts/ft-deploy.mjs create_strategy '{"name":"MyStrat","timeframe":"15m","indicators":["rsi","macd"],"aicoin_data":["funding_rate"]}'` |
-| Backtest | `node scripts/ft-deploy.mjs backtest '{"strategy":"MyStrat","timeframe":"1h","timerange":"20250101-20260301"}'` |
+| Backtest | `node scripts/ft-deploy.mjs backtest '{"strategy":"MyStrat","timeframe":"1h","timerange":"20250101-20260301","pairs":["ETH/USDT:USDT"]}'` |
 | Deploy (dry-run) | `node scripts/ft-deploy.mjs deploy '{"strategy":"MyStrat","pairs":["BTC/USDT:USDT"]}'` |
 | Deploy (live) | `node scripts/ft-deploy.mjs deploy '{"strategy":"MyStrat","dry_run":false,"pairs":["BTC/USDT:USDT"]}'` |
 | Hyperopt | `node scripts/ft-deploy.mjs hyperopt '{"strategy":"MyStrat","timeframe":"1h","timerange":"20250101-20260301","epochs":100}'` |
@@ -283,7 +283,7 @@ Get at https://www.aicoin.com/opendata
 |--------|--------|
 | `check` | None |
 | `deploy` | `{"strategy":"MACDKDJStrategy","dry_run":true,"pairs":["BTC/USDT:USDT"]}` — **strategy 必填，指定策略名** |
-| `backtest` | `{"strategy":"Name","timeframe":"1h","timerange":"20250101-20260301"}` |
+| `backtest` | `{"strategy":"Name","timeframe":"1h","timerange":"20250101-20260301","pairs":["ETH/USDT:USDT"]}` — pairs 可选，默认用 config 中的交易对 |
 | `hyperopt` | `{"strategy":"Name","timeframe":"1h","epochs":100}` |
 | `create_strategy` | `{"name":"Name","timeframe":"15m","indicators":["rsi","macd"],"aicoin_data":["funding_rate"]}` |
 | `strategy_list` | None |
