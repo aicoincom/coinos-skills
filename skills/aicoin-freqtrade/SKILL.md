@@ -15,7 +15,7 @@ Freqtrade strategy creation, backtesting, and deployment powered by [AiCoin Open
 1. **ALWAYS use `ft-deploy.mjs backtest`** for backtesting. NEVER write custom backtest scripts. NEVER use simulated/fabricated data.
 2. **ALWAYS use `ft-deploy.mjs deploy`** for deployment. NEVER use Docker. NEVER manually run `freqtrade` commands.
 3. **NEVER manually edit Freqtrade config files.** Use `ft-deploy.mjs` actions.
-4. **NEVER manually run `freqtrade trade`, `source .venv/bin/activate`, or `pip install freqtrade`.**
+4. **NEVER manually run `freqtrade trade`, `freqtrade status`, `freqtrade backtesting`, `source .venv/bin/activate`, or `pip install freqtrade`.** Always use ft-deploy.mjs or ft.mjs instead.
 5. **ACTIVELY use AiCoin data** in strategies. Check what data the user's API key supports and integrate it. Don't only use basic indicators when richer data is available.
 
 ## Two Ways to Create Strategies
