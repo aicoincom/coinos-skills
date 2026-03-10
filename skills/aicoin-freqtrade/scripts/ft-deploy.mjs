@@ -332,6 +332,11 @@ const actions = {
 
     // 9. Start freqtrade as background process (with proxy env vars)
     const strategy = params.strategy || 'SampleStrategy';
+    // Validate strategy exists
+    const stratFile = resolve(STRAT_DIR, `${strategy}.py`);
+    if (strategy !== 'SampleStrategy' && !existsSync(stratFile)) {
+      throw new Error(`Strategy "${strategy}" not found at ${stratFile}. Use strategy_list to see available strategies, or create_strategy to create one.`);
+    }
     const proxyEnv = process.env.PROXY_URL || process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
     const proxyPrefix = proxyEnv ? `env HTTPS_PROXY=${proxyEnv} HTTP_PROXY=${proxyEnv} ` : '';
     run(`nohup ${proxyPrefix}${FT_BIN} trade --config ${CONFIG_PATH} --strategy ${strategy} --userdir ${USER_DATA} > ${LOG_FILE} 2>&1 & echo $! > ${PID_FILE}`);
@@ -428,6 +433,11 @@ const actions = {
     if (!existsSync(FT_BIN)) throw new Error('Freqtrade not installed. Run deploy first.');
     if (!existsSync(CONFIG_PATH)) throw new Error('No config found. Run deploy first.');
     const strategy = params.strategy || 'SampleStrategy';
+    // Validate strategy exists
+    const stratFile = resolve(STRAT_DIR, `${strategy}.py`);
+    if (!existsSync(stratFile)) {
+      throw new Error(`Strategy "${strategy}" not found at ${stratFile}. Use strategy_list to see available strategies, or create_strategy to create one.`);
+    }
     const timeframe = params.timeframe || '1h';
     const timerange = params.timerange || '';
     const timerangeArg = timerange ? ` --timerange ${timerange}` : '';
@@ -489,6 +499,11 @@ const actions = {
     if (!existsSync(CONFIG_PATH)) throw new Error('No config found. Run deploy first.');
 
     const strategy = params.strategy || 'SampleStrategy';
+    // Validate strategy exists
+    const hStratFile = resolve(STRAT_DIR, `${strategy}.py`);
+    if (!existsSync(hStratFile)) {
+      throw new Error(`Strategy "${strategy}" not found at ${hStratFile}. Use strategy_list to see available strategies, or create_strategy to create one.`);
+    }
     const timeframe = params.timeframe || '1h';
     const timerange = params.timerange || '';
     const epochs = Math.min(Number(params.epochs) || 100, 500);
@@ -521,8 +536,11 @@ const actions = {
   },
 
   create_strategy: async (params = {}) => {
-    const name = params.name;
+    let name = params.name;
     if (!name) throw new Error('name is required. Example: {"name":"MyStrategy","timeframe":"15m","indicators":["rsi","macd","bb"],"aicoin_data":["funding_rate","ls_ratio"]}');
+    // Auto-fix common naming issues from weak models
+    name = name.replace(/[^A-Za-z0-9_]/g, '');  // strip invalid chars
+    if (name && /^[a-z]/.test(name)) name = name[0].toUpperCase() + name.slice(1);  // auto-capitalize
     if (!/^[A-Z][A-Za-z0-9_]+$/.test(name)) throw new Error('name must be a valid Python class name starting with uppercase (e.g. MyStrategy)');
 
     mkdirSync(STRAT_DIR, { recursive: true });

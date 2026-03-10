@@ -8,7 +8,7 @@ This is a **CoinOS skill collection** providing 5 skills for crypto market data,
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| aicoin-market | Prices, K-lines, news, signals, whale orders, airdrops, drop radar | User asks about crypto prices, charts, funding rates, news, trending coins, airdrops, 空投, 空投项目, 空投研报, 项目分析, 项目详情, drop radar, exchange listings, 上了哪些交易所 |
+| aicoin-market | Prices, K-lines, news, signals, whale orders, airdrops, drop radar | User asks about crypto prices, charts, funding rates, news, 新闻, 快讯, ETF, 监管, trending coins, airdrops, 空投, 空投项目, 空投研报, 项目分析, 项目详情, drop radar, exchange listings, 上了哪些交易所 |
 | aicoin-account | Balance, positions, registration, API key management | User asks about balance, positions, order history, registration, API key config, tier upgrade |
 | aicoin-trading | Order placement and position close (buy/sell/leverage/close) | User wants to place orders, set leverage, close positions (平仓). ⚠️ ALL orders via exchange.mjs, NEVER custom code |
 | aicoin-freqtrade | Strategy creation, backtesting, bot deployment | User wants to write strategies, backtest, deploy Freqtrade bots |
