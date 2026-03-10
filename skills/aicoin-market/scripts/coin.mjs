@@ -39,6 +39,15 @@ function resolveDbkey(dbkey) {
 }
 
 cli({
+  // coin_search
+  search: ({ search, page, page_size, market, trade_type }) => {
+    const p = { search };
+    if (page) p.page = page;
+    if (page_size) p.page_size = page_size;
+    if (market) p.market = market;
+    if (trade_type) p.trade_type = trade_type;
+    return apiGet('/api/upgrade/v2/coin/search', p);
+  },
   // coin_info
   coin_list: () => apiGet('/api/v2/coin'),
   coin_ticker: ({ coin_list }) => apiGet('/api/v2/coin/ticker', { coin_list }),
