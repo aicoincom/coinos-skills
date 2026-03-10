@@ -236,7 +236,7 @@ cli({
     const ex = await getExchange(exchange, market_type);
     return ex.fetchOrder(order_id, symbol);
   },
-  create_order: async ({ exchange, symbol, type, side, amount, price, market_type, params, confirmed }) => {
+  create_order: async ({ exchange, symbol, type, side, amount, cost, leverage, price, market_type, params, confirmed }) => {
     const pendingFile = resolve(__dir, '..', '.pending-order.json');
 
     // Internal calls (from auto-trade.mjs) bypass file-based confirmation
@@ -295,8 +295,24 @@ cli({
     await ex.loadMarkets();
     const mkt = ex.markets[symbol];
 
+    // cost param: user says "用XU做多" → calculate amount from USDT margin budget
+    if (cost && mkt?.contractSize && market_type && market_type !== 'spot') {
+      const tick = await ex.fetchTicker(symbol);
+      const curP = tick.last;
+      // Use leverage from param, or fetch from position
+      let lev = leverage ? Number(leverage) : 1;
+      if (!leverage) {
+        try {
+          const positions = await ex.fetchPositions([symbol]);
+          const pos = positions.find(p => p.symbol === symbol);
+          if (pos?.leverage) lev = Number(pos.leverage);
+        } catch {}
+      }
+      amount = Math.max(1, Math.round(Number(cost) * lev / (mkt.contractSize * curP)));
+    }
+
     // Auto-convert: non-integer amount on contract = user gave base currency (e.g. 0.01 BTC → 1 contract)
-    if (mkt?.contractSize && !Number.isInteger(Number(amount))) {
+    if (!cost && mkt?.contractSize && !Number.isInteger(Number(amount))) {
       amount = Math.max(1, Math.round(Number(amount) / mkt.contractSize));
     }
 
@@ -332,19 +348,24 @@ cli({
 
     // Leverage & margin info for futures
     if (mktType !== 'spot') {
+      let lev = leverage ? Number(leverage) : null;
+      let mgnMode = null;
       try {
         const positions = await ex.fetchPositions([symbol]);
         const pos = positions.find(p => p.symbol === symbol);
         if (pos) {
-          if (pos.leverage) orderInfo['杠杆'] = `${pos.leverage}x`;
-          if (pos.marginMode || pos.marginType) orderInfo['保证金模式'] = pos.marginMode || pos.marginType;
-          if (curPrice && pos.leverage) {
-            const lev = Number(pos.leverage);
-            const notional = mkt?.contractSize ? amount * mkt.contractSize * curPrice : amount * curPrice;
-            orderInfo['预估保证金'] = `${(notional / lev).toFixed(2)} USDT`;
-          }
+          if (!lev && pos.leverage) lev = Number(pos.leverage);
+          mgnMode = pos.marginMode || pos.marginType;
         }
       } catch {}
+      if (lev) {
+        orderInfo['杠杆'] = `${lev}x`;
+        if (curPrice) {
+          const notional = mkt?.contractSize ? amount * mkt.contractSize * curPrice : amount * curPrice;
+          orderInfo['预估保证金'] = `${(notional / lev).toFixed(2)} USDT`;
+        }
+      }
+      if (mgnMode) orderInfo['保证金模式'] = mgnMode;
     }
 
     return {

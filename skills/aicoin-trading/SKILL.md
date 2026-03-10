@@ -44,6 +44,7 @@ node scripts/exchange.mjs create_order '{"exchange":"okx","symbol":"BTC/USDT:USD
 ## 数量
 
 **合约自动换算：** amount 传用户说的币数量（如 0.01），脚本自动转张数。传整数则视为张数。
+**用 USDT 金额下单：** 当用户说"用10U做多"或"花10 USDT开仓"，传 `cost=10`（USDT保证金金额），不要传 amount。脚本会根据当前价格、杠杆自动计算合约张数。
 **现货：** amount = 币数量。
 
 **格式：** 现货 `BTC/USDT`，合约 `BTC/USDT:USDT`，Hyperliquid 用 USDC: `BTC/USDC:USDC`。
