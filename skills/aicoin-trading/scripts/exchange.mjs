@@ -377,6 +377,39 @@ cli({
       操作指引: '请确认以上订单信息无误。回复「确认」或「yes」执行下单，回复「取消」放弃。',
     };
   },
+  close_position: async ({ exchange, symbol, market_type, confirmed }) => {
+    const mt = market_type || 'swap';
+    const ex = await getExchange(exchange, mt);
+    const positions = await ex.fetchPositions(symbol ? [symbol] : undefined);
+    const open = positions.filter(p => Math.abs(Number(p.contracts || 0)) > 0);
+    if (!open.length) return { message: '当前没有持仓需要平仓。', positions: [] };
+    // Preview
+    if (confirmed !== 'true' && confirmed !== true) {
+      return {
+        _preview: true,
+        status: '⚠️ 平仓预览 — 订单未下达',
+        待平仓位: open.map(p => ({
+          交易对: p.symbol, 方向: p.side === 'long' ? '多' : '空',
+          张数: Math.abs(Number(p.contracts)), 开仓价: p.entryPrice,
+          未实现盈亏: p.unrealizedPnl, 杠杆: p.leverage,
+        })),
+        操作指引: '请确认平掉以上仓位。回复「确认」执行，回复「取消」放弃。',
+      };
+    }
+    // Execute
+    const results = [];
+    for (const pos of open) {
+      const closeSide = pos.side === 'long' ? 'sell' : 'buy';
+      const amount = Math.abs(Number(pos.contracts));
+      try {
+        const order = await placeOrder(ex, pos.symbol, 'market', closeSide, amount, undefined, { reduceOnly: true }, exchange, mt);
+        results.push({ symbol: pos.symbol, side: pos.side, amount, status: '已平仓', orderId: order.id });
+      } catch (e) {
+        results.push({ symbol: pos.symbol, side: pos.side, amount, status: '失败', error: e.message });
+      }
+    }
+    return { 平仓结果: results };
+  },
   funding_rate: async ({ exchange, symbol, market_type }) => {
     const ex = await getExchange(exchange, market_type || 'swap', true);
     return ex.fetchFundingRate(symbol);

@@ -50,6 +50,22 @@ node scripts/market.mjs kline '{"symbol":"从search拿到的dbKey","period":"360
 
 **中文俗称：** 大饼=BTC, 姨太=ETH, 狗狗=DOGE, 瑞波=XRP, 索拉纳=SOL.
 
+## 常用工作流
+
+**空投查询：** 用户问空投/airdrop 时，**必须同时查两个数据源**再汇总：
+1. `node scripts/airdrop.mjs list '{"source":"all","page_size":"20"}'` — 交易所空投（Launchpool、Jumpstart 等）
+2. `node scripts/drop_radar.mjs list '{"page_size":"20"}'` — 链上早期空投项目
+
+**项目深度分析：** 查到项目 `airdrop_id` 后，**一次性调三个接口**：
+```
+node scripts/drop_radar.mjs detail '{"airdrop_id":"xxx"}'
+node scripts/drop_radar.mjs team '{"airdrop_id":"xxx"}'
+node scripts/drop_radar.mjs x_following '{"airdrop_id":"xxx"}'
+```
+如已发代币，再用 `node scripts/coin.mjs search '{"search":"代币名"}'` 查价格和交易对。
+
+**查币上了哪些交易所：** `node scripts/coin.mjs search '{"search":"OPN"}'` — 返回全部交易所的交易对（现货+合约），不要用其他接口拼凑。
+
 ## Free vs Paid Endpoints
 
 **Free (built-in key, no config needed):** `coin_ticker`, `kline`, `hot_coins`, `exchanges`, `pair_ticker`, `news_rss` — only 6 endpoints.
