@@ -77,7 +77,7 @@ node scripts/market.mjs kline '{"symbol":"从search拿到的dbKey","period":"360
 
 **高级版 ($299/mo) adds:** `liquidation_map`, `liquidation_history`, `liquidation`, `indicator_kline`, `indicator_pairs`, `index_list`, `index_price`, `index_info`, `depth_full`, `depth_grouped`
 
-**专业版 ($699/mo) adds:** `ai_analysis`, `open_interest`, `estimated_liquidation`, `historical_depth`, `super_depth`, `funding_rate`(weighted), `stock_quotes`, `stock_top_gainer`, `stock_company`, `treasury_*`, `stock_market`, `signal_alert_list`, `exchange_listing`
+**专业版 ($699/mo) adds:** `ai_analysis`, `open_interest`, `estimated_liquidation`, `historical_depth`, `super_depth`, `stock_quotes`, `stock_top_gainer`, `stock_company`, `treasury_*`, `stock_market`, `signal_alert_list`, `exchange_listing`
 
 Full tier table: `docs/api-tiers.md`
 
@@ -108,7 +108,7 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 | `coin_ticker` | Real-time prices | 免费版 | `{"coin_list":"bitcoin,ethereum"}` |
 | `coin_list` | List all coins | 基础版 | None |
 | `coin_config` | Coin profile | 基础版 | `{"coin_list":"bitcoin"}` |
-| `funding_rate` | Funding rate (BTC only, aggregated) | 基础版 | `{"symbol":"BTC","interval":"8h"}` Weighted: add `"weighted":"true"` (专业版). For per-exchange real-time rates, use **aicoin-trading**: `node scripts/exchange.mjs funding_rate '{"exchange":"binance","symbol":"BTC/USDT:USDT"}'` |
+| `funding_rate` | Funding rate (BTC only, aggregated) | 基础版 | `{"symbol":"BTC","interval":"8h"}` Weighted: add `"weighted":"true"` (基础版). For per-exchange real-time rates, use **aicoin-trading**: `node scripts/exchange.mjs funding_rate '{"exchange":"binance","symbol":"BTC/USDT:USDT"}'` |
 | `trade_data` | Trade data | 基础版 | `{"symbol":"btcswapusdt:okcoinfutures"}` |
 | `ai_analysis` | AI analysis & prediction | 专业版 | `{"coin_keys":"[\"bitcoin\"]","language":"CN"}` |
 | `open_interest` | Open interest | 专业版 | `{"symbol":"BTC","interval":"15m"}` Coin-margined: add `"margin_type":"coin"` |
