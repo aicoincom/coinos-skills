@@ -142,10 +142,10 @@ Works with **Claude Code, Cursor, Codex, OpenClaw, Windsurf, Gemini CLI** and mo
    ┌──────▼──────┐ ┌────▼────┐ ┌────▼────┐ ┌────▼────┐ ┌─────▼─────┐
    │   market    │ │ trading │ │freqtrade│ │  hyper  │ │  account  │
    │             │ │         │ │         │ │ liquid  │ │           │
-   │ coin.mjs    │ │exchange │ │ft-deploy│ │hl-market│ │account.mjs│
-   │ market.mjs  │ │  .mjs   │ │  .mjs   │ │  .mjs   │ │           │
-   │ news.mjs    │ │auto-    │ │ ft.mjs  │ │hl-trader│ │           │
-   │ features.mjs│ │trade.mjs│ │ft-dev   │ │  .mjs   │ │           │
+   │ coin.mjs    │ │exchange │ │ft-deploy│ │hl-market│ │exchange   │
+   │ market.mjs  │ │  .mjs   │ │  .mjs   │ │  .mjs   │ │  .mjs     │
+   │ news.mjs    │ │auto-    │ │ ft.mjs  │ │hl-trader│ │register   │
+   │ features.mjs│ │trade.mjs│ │ft-dev   │ │  .mjs   │ │  .mjs     │
    │ twitter.mjs │ │         │ │  .mjs   │ │         │ │           │
    │newsflash.mjs│ │         │ │         │ │         │ │           │
    └──────┬──────┘ └────┬────┘ └────┬────┘ └────┬────┘ └─────┬─────┘

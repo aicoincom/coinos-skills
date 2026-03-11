@@ -143,10 +143,10 @@ CoinOS 是一套 AI Skill 集合，封装 [AiCoin Open API](https://www.aicoin.c
    │   market    │ │ trading │ │freqtrade│ │  hyper  │ │  account  │
    │   行情数据   │ │  交易    │ │  量化    │ │ liquid  │ │  账户管理  │
    │             │ │         │ │         │ │  鲸鱼    │ │           │
-   │ coin.mjs    │ │exchange │ │ft-deploy│ │hl-market│ │account.mjs│
-   │ market.mjs  │ │  .mjs   │ │  .mjs   │ │  .mjs   │ │           │
-   │ news.mjs    │ │auto-    │ │ ft.mjs  │ │hl-trader│ │           │
-   │ features.mjs│ │trade.mjs│ │ft-dev   │ │  .mjs   │ │           │
+   │ coin.mjs    │ │exchange │ │ft-deploy│ │hl-market│ │exchange   │
+   │ market.mjs  │ │  .mjs   │ │  .mjs   │ │  .mjs   │ │  .mjs     │
+   │ news.mjs    │ │auto-    │ │ ft.mjs  │ │hl-trader│ │register   │
+   │ features.mjs│ │trade.mjs│ │ft-dev   │ │  .mjs   │ │  .mjs     │
    │ twitter.mjs │ │         │ │  .mjs   │ │         │ │           │
    │newsflash.mjs│ │         │ │         │ │         │ │           │
    └──────┬──────┘ └────┬────┘ └────┬────┘ └────┬────┘ └─────┬─────┘
