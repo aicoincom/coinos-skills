@@ -362,8 +362,10 @@ coinos-skills/
 │   │       ├── market.mjs        K线、资金费率、持仓量
 │   │       ├── features.mjs      大单、鲸鱼订单
 │   │       ├── news.mjs          新闻推送、搜索
+│   │       ├── newsflash.mjs     快讯提醒
 │   │       ├── twitter.mjs       加密推特/X 动态
-│   │       └── newsflash.mjs     快讯提醒
+│   │       ├── airdrop.mjs       空投查询
+│   │       └── drop_radar.mjs    上币雷达与项目分析
 │   │
 │   ├── aicoin-trading/       # 交易所交易
 │   │   ├── SKILL.md
@@ -389,8 +391,12 @@ coinos-skills/
 │   │
 │   └── aicoin-account/       # 账户管理
 │       ├── SKILL.md
+│       ├── lib/
 │       └── scripts/
-│           └── account.mjs       余额、仓位、API Key
+│           ├── exchange.mjs      余额、仓位、订单
+│           ├── api-key-info.mjs  API Key 管理
+│           ├── check-tier.mjs    API 套餐查询
+│           └── register.mjs      交易所注册
 │
 ├── AGENTS.md                 # AI Agent 路由指引
 ├── CLAUDE.md                 # 开发说明

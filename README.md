@@ -361,8 +361,10 @@ coinos-skills/
 │   │       ├── market.mjs        K-lines, funding rates, OI
 │   │       ├── features.mjs      Whale orders, large trades
 │   │       ├── news.mjs          News feed, search
+│   │       ├── newsflash.mjs     Breaking news alerts
 │   │       ├── twitter.mjs       Crypto Twitter/X feed
-│   │       └── newsflash.mjs     Breaking news alerts
+│   │       ├── airdrop.mjs       Airdrop queries
+│   │       └── drop_radar.mjs    Drop radar & project analysis
 │   │
 │   ├── aicoin-trading/       # Exchange trading
 │   │   ├── SKILL.md
@@ -388,8 +390,12 @@ coinos-skills/
 │   │
 │   └── aicoin-account/       # Account management
 │       ├── SKILL.md
+│       ├── lib/
 │       └── scripts/
-│           └── account.mjs       Balance, positions, API keys
+│           ├── exchange.mjs      Balance, positions, orders
+│           ├── api-key-info.mjs  API key management
+│           ├── check-tier.mjs    Verify API tier/subscription
+│           └── register.mjs      Exchange registration
 │
 ├── AGENTS.md                 # Skill routing for AI agents
 ├── CLAUDE.md                 # Dev instructions
