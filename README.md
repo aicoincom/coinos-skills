@@ -124,6 +124,137 @@ Works with **Claude Code, Cursor, Codex, OpenClaw, Windsurf, Gemini CLI** and mo
 <br />
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="-----" />
 
+## AiCoin Exclusive Data
+
+**Data you can't get anywhere else — aggregated from 200+ exchanges in real time.**
+
+</div>
+
+<div align="center">
+<table>
+<tr>
+<td width="50%">
+
+**Whale & Sentiment Intelligence**
+
+| Data | What it tells you |
+|:--|:--|
+| **Whale Orders** | Real-time large buy/sell orders across exchanges |
+| **Long/Short Ratio** | Aggregated market positioning — are traders net long or short? |
+| **Funding Rates** | Cross-exchange weighted rates — spot over-leveraged markets |
+| **Liquidation Map** | Heatmap of liquidation clusters — find squeeze zones |
+| **Open Interest** | Aggregated OI trends — confirm or question price moves |
+
+</td>
+<td width="50%">
+
+**News & Alpha Discovery**
+
+| Data | What it tells you |
+|:--|:--|
+| **Newsflash** | Breaking crypto news before it hits mainstream |
+| **Twitter/X Feed** | Real-time KOL tweets, influencer discovery |
+| **Drop Radar** | Airdrop intelligence: team, funding, X followers, status |
+| **Signal Alerts** | Pre-built anomaly & strategy signals |
+| **Treasury Tracker** | Institutional holdings (MicroStrategy, funds, etc.) |
+
+</td>
+</tr>
+</table>
+</div>
+
+<div align="center">
+
+> Most platforms give you prices. AiCoin gives you **what the whales are doing, what the market is feeling, and what's about to happen** — across 200+ exchanges, in one API.
+
+<br />
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="-----" />
+
+## Strategy & Backtesting
+
+**Write strategies in one sentence. Backtest with real data. Deploy to live.**
+
+</div>
+
+CoinOS integrates with [Freqtrade](https://github.com/freqtrade/freqtrade) and injects **AiCoin's exclusive on-chain/sentiment data** directly into your strategies — something no other backtesting tool offers.
+
+<div align="center">
+<table>
+<tr>
+<td width="50%">
+
+**17 Built-in Indicators**
+
+| Category | Indicators |
+|:--|:--|
+| **Trend** | EMA, SMA, ADX, Ichimoku |
+| **Momentum** | RSI, MACD, Stochastic/KDJ, CCI, Williams %R |
+| **Volatility** | Bollinger Bands, ATR |
+| **Volume** | VWAP, OBV, Volume SMA |
+
+</td>
+<td width="50%">
+
+**5 AiCoin-Exclusive Data Feeds**
+
+| Data | Strategy use case |
+|:--|:--|
+| **funding_rate** | Rate > 0.1% = too many longs, fade the crowd |
+| **ls_ratio** | Ratio < 0.45 = crowded shorts, contrarian buy |
+| **big_orders** | Positive whale signal = smart money accumulating |
+| **liquidation_map** | Liquidation clusters = squeeze opportunity |
+| **open_interest** | OI rising + price falling = reversal incoming |
+
+</td>
+</tr>
+</table>
+</div>
+
+<div align="center">
+
+**One command to create. One command to backtest. One command to deploy.**
+
+</div>
+
+```bash
+# 1. Create a strategy with AiCoin data + technical indicators
+> "Write a funding rate strategy with RSI and Bollinger Bands, 15m timeframe"
+
+# 2. Backtest against real historical K-line data
+> "Backtest it on BTC/USDT, all of 2025"
+
+# 3. Optimize parameters
+> "Run hyperopt, 500 epochs"
+
+# 4. Deploy to live
+> "Deploy it as a dry-run bot on Binance"
+```
+
+```
+Backtest Results
+─────────────────────────────────────────────────
+Strategy:       FundingRateStrat
+Timerange:      2025-01-01 → 2025-12-31
+Pair:           BTC/USDT
+─────────────────────────────────────────────────
+Total trades:   142
+Win rate:       63.4%
+Total profit:   +18.7%
+Max drawdown:   -8.2%
+Sharpe ratio:   1.45
+─────────────────────────────────────────────────
+AiCoin data:    funding_rate (live/dry-run only)
+Indicators:     RSI, Bollinger Bands
+─────────────────────────────────────────────────
+```
+
+<div align="center">
+
+> Traditional backtesting only uses price + volume. CoinOS strategies can additionally react to **whale behavior, market sentiment, and liquidation pressure** in live trading — giving your bot an edge that pure technical analysis can't match.
+
+<br />
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="-----" />
+
 ## Architecture
 
 </div>

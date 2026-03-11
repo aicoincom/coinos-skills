@@ -124,6 +124,137 @@ CoinOS 是一套 AI Skill 集合，封装 [AiCoin Open API](https://www.aicoin.c
 <br />
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="-----" />
 
+## AiCoin 独家数据
+
+**别处拿不到的数据 — 实时聚合 200+ 交易所。**
+
+</div>
+
+<div align="center">
+<table>
+<tr>
+<td width="50%">
+
+**鲸鱼与情绪数据**
+
+| 数据 | 它能告诉你什么 |
+|:--|:--|
+| **大单追踪** | 各交易所实时大额买卖单 |
+| **多空比** | 聚合市场持仓方向 — 散户在做多还是做空？ |
+| **资金费率** | 跨交易所加权费率 — 发现过度杠杆化的市场 |
+| **清算地图** | 清算集中区热力图 — 找到轧空/轧多区间 |
+| **持仓量 (OI)** | 聚合 OI 趋势 — 验证或质疑价格走势 |
+
+</td>
+<td width="50%">
+
+**新闻与 Alpha 发现**
+
+| 数据 | 它能告诉你什么 |
+|:--|:--|
+| **快讯** | 比主流媒体更快的加密新闻 |
+| **推特/X 动态** | 实时 KOL 推文、大V发现 |
+| **空投雷达** | 空投情报：团队、融资、X 粉丝、项目状态 |
+| **信号提醒** | 预设异常信号与策略信号 |
+| **机构持仓** | MicroStrategy 等机构持仓追踪 |
+
+</td>
+</tr>
+</table>
+</div>
+
+<div align="center">
+
+> 多数平台只给你价格。AiCoin 告诉你**鲸鱼在干什么、市场情绪如何、即将发生什么** — 横跨 200+ 交易所，一个 API 搞定。
+
+<br />
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="-----" />
+
+## 策略与回测
+
+**一句话写策略。真实数据回测。一键部署实盘。**
+
+</div>
+
+CoinOS 集成 [Freqtrade](https://github.com/freqtrade/freqtrade)，并将 **AiCoin 独家链上/情绪数据**直接注入你的策略 — 这是其他回测工具做不到的。
+
+<div align="center">
+<table>
+<tr>
+<td width="50%">
+
+**17 个内置技术指标**
+
+| 类别 | 指标 |
+|:--|:--|
+| **趋势** | EMA, SMA, ADX, Ichimoku |
+| **动量** | RSI, MACD, Stochastic/KDJ, CCI, Williams %R |
+| **波动率** | Bollinger Bands, ATR |
+| **成交量** | VWAP, OBV, Volume SMA |
+
+</td>
+<td width="50%">
+
+**5 种 AiCoin 独家数据**
+
+| 数据 | 策略用法 |
+|:--|:--|
+| **funding_rate** | 费率 > 0.1% = 多头过热，反向操作 |
+| **ls_ratio** | 比值 < 0.45 = 空头拥挤，逆向买入 |
+| **big_orders** | 鲸鱼信号为正 = 聪明钱在吸筹 |
+| **liquidation_map** | 清算集中 = 轧空/轧多机会 |
+| **open_interest** | OI 上升 + 价格下跌 = 反转信号 |
+
+</td>
+</tr>
+</table>
+</div>
+
+<div align="center">
+
+**一条命令创建。一条命令回测。一条命令部署。**
+
+</div>
+
+```bash
+# 1. 用 AiCoin 数据 + 技术指标创建策略
+> "帮我写一个资金费率策略，加上 RSI 和布林带，15分钟周期"
+
+# 2. 用真实历史 K 线回测
+> "回测一下 BTC/USDT，2025 全年"
+
+# 3. 超参数优化
+> "跑一下 hyperopt，500 轮"
+
+# 4. 部署到实盘
+> "部署到 Binance，先跑模拟盘"
+```
+
+```
+回测结果
+─────────────────────────────────────────────────
+策略:          FundingRateStrat
+时间范围:      2025-01-01 → 2025-12-31
+交易对:        BTC/USDT
+─────────────────────────────────────────────────
+总交易数:      142
+胜率:          63.4%
+总收益:        +18.7%
+最大回撤:      -8.2%
+夏普比率:      1.45
+─────────────────────────────────────────────────
+AiCoin 数据:   funding_rate（实盘/模拟盘可用）
+技术指标:      RSI, Bollinger Bands
+─────────────────────────────────────────────────
+```
+
+<div align="center">
+
+> 传统回测只用价格+成交量。CoinOS 策略在实盘中还能感知**鲸鱼行为、市场情绪、清算压力** — 让你的机器人拥有纯技术分析无法比拟的优势。
+
+<br />
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="-----" />
+
 ## 架构
 
 </div>
