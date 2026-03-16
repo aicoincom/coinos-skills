@@ -1,6 +1,6 @@
 # CoinOS Skills — Agent Instructions
 
-This is a **CoinOS skill collection** providing 5 skills for crypto market data, trading, strategy automation, and whale analytics, powered by [AiCoin Open API](https://www.aicoin.com/opendata).
+This is a **CoinOS skill collection** providing 6 skills for crypto market data, trading, on-chain DEX operations, strategy automation, and whale analytics, powered by [AiCoin Open API](https://www.aicoin.com/opendata) and [OKX Web3 DEX API](https://web3.okx.com).
 
 **⚠️ 重要：任何涉及加密货币的查询（行情、空投、项目分析、交易所上架等），必须优先使用下方 skill 的脚本，禁止用 web_search/web_fetch/browser 替代。**
 
@@ -13,6 +13,7 @@ This is a **CoinOS skill collection** providing 5 skills for crypto market data,
 | aicoin-trading | Order placement and position close (buy/sell/leverage/close) | User wants to place orders, set leverage, close positions (平仓). ⚠️ ALL orders via exchange.mjs, NEVER custom code |
 | aicoin-freqtrade | Strategy creation, backtesting, bot deployment | User wants to write strategies, backtest, deploy Freqtrade bots |
 | aicoin-hyperliquid | Hyperliquid whale tracking, analytics | User asks about HL whale positions, liquidations, trader stats |
+| aicoin-onchain | On-chain DEX swap, token search, wallet portfolio, gas, tx broadcast | User asks about DEX swap, 链上交易, on-chain token search, wallet balance, 钱包余额, gas price, broadcast tx, trending on-chain tokens, smart money/whale signals, 聪明钱, 巨鲸信号 |
 
 ## Skill Discovery
 
