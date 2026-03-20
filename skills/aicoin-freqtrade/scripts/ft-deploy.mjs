@@ -262,9 +262,17 @@ const actions = {
     // 2. Ensure git
     if (!hasCommand('git')) throw new Error('git not found. Install: apt install git (Linux) or xcode-select --install (macOS)');
 
-    // 3. Detect exchange
-    const exchangeInfo = detectExchange();
-    if (!exchangeInfo) throw new Error('No exchange API keys found in .env');
+    // 3. Detect exchange (allow dummy keys for dry_run)
+    let exchangeInfo = detectExchange();
+    if (!exchangeInfo) {
+      if (params.dry_run !== false) {
+        const exName = params.exchange || 'binance';
+        exchangeInfo = { name: exName, key: 'dry-run', secret: 'dry-run' };
+        console.error(`No exchange API keys found — using dummy keys for dry-run (${exName})`);
+      } else {
+        throw new Error('No exchange API keys found in .env (required for live trading)');
+      }
+    }
 
     // 4. Create directories
     mkdirSync(STRAT_DIR, { recursive: true });
@@ -431,7 +439,18 @@ const actions = {
 
   backtest: async (params = {}) => {
     if (!existsSync(FT_BIN)) throw new Error('Freqtrade not installed. Run deploy first.');
-    if (!existsSync(CONFIG_PATH)) throw new Error('No config found. Run deploy first.');
+    // Auto-create config for backtest if missing (no exchange keys needed)
+    if (!existsSync(CONFIG_PATH)) {
+      mkdirSync(dirname(CONFIG_PATH), { recursive: true });
+      const exchange = params.exchange || 'binance';
+      const backtestConfig = generateConfig(
+        { name: exchange, key: 'backtest-only', secret: 'backtest-only' },
+        randomBytes(8).toString('hex'),
+        { dry_run: true, pairs: params.pairs || ['BTC/USDT:USDT'] },
+      );
+      writeFileSync(CONFIG_PATH, JSON.stringify(backtestConfig, null, 2));
+      console.error(`Auto-created backtest config (exchange: ${exchange})`);
+    }
     const strategy = params.strategy || 'SampleStrategy';
     // Validate strategy exists
     const stratFile = resolve(STRAT_DIR, `${strategy}.py`);
@@ -478,7 +497,17 @@ const actions = {
 
   download_data: async (params = {}) => {
     if (!existsSync(FT_BIN)) throw new Error('Freqtrade not installed. Run deploy first.');
-    if (!existsSync(CONFIG_PATH)) throw new Error('No config found. Run deploy first.');
+    if (!existsSync(CONFIG_PATH)) {
+      mkdirSync(dirname(CONFIG_PATH), { recursive: true });
+      const exchange = params.exchange || 'binance';
+      const dlConfig = generateConfig(
+        { name: exchange, key: 'download-only', secret: 'download-only' },
+        randomBytes(8).toString('hex'),
+        { dry_run: true, pairs: params.pairs || ['BTC/USDT:USDT'] },
+      );
+      writeFileSync(CONFIG_PATH, JSON.stringify(dlConfig, null, 2));
+      console.error(`Auto-created config for data download (exchange: ${exchange})`);
+    }
     const timeframe = params.timeframe || '1h';
     const timerange = params.timerange || '';
     const timerangeArg = timerange ? ` --timerange ${timerange}` : '';
@@ -496,7 +525,17 @@ const actions = {
 
   hyperopt: async (params = {}) => {
     if (!existsSync(FT_BIN)) throw new Error('Freqtrade not installed. Run deploy first.');
-    if (!existsSync(CONFIG_PATH)) throw new Error('No config found. Run deploy first.');
+    if (!existsSync(CONFIG_PATH)) {
+      mkdirSync(dirname(CONFIG_PATH), { recursive: true });
+      const exchange = params.exchange || 'binance';
+      const hConfig = generateConfig(
+        { name: exchange, key: 'hyperopt-only', secret: 'hyperopt-only' },
+        randomBytes(8).toString('hex'),
+        { dry_run: true, pairs: params.pairs || ['BTC/USDT:USDT'] },
+      );
+      writeFileSync(CONFIG_PATH, JSON.stringify(hConfig, null, 2));
+      console.error(`Auto-created config for hyperopt (exchange: ${exchange})`);
+    }
 
     const strategy = params.strategy || 'SampleStrategy';
     // Validate strategy exists
