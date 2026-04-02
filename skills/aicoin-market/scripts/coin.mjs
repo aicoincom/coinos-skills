@@ -93,22 +93,37 @@ cli({
     if (end_time) p.end_time = end_time;
     return apiGet('/api/upgrade/v2/futures/liquidation/history', p);
   },
-  estimated_liquidation: ({ symbol, dbkey, cycle, leverage, limit = '5' }) => {
+  estimated_liquidation: ({ symbol, dbkey, cycle, leverage, limit = '5', start_time, end_time }) => {
     const p = { dbkey: resolveDbkey(symbol || dbkey), cycle, limit };
     if (leverage) p.leverage = leverage;
+    if (start_time) p.start_time = start_time; if (end_time) p.end_time = end_time;
     return apiGet('/api/upgrade/v2/futures/estimated-liquidation/history', p);
   },
   // coin_open_interest
-  open_interest: ({ symbol, interval, margin_type = 'stablecoin', limit = '100' }) => {
+  open_interest: ({ symbol, interval, margin_type = 'stablecoin', limit = '100', start_time, end_time }) => {
     const path = margin_type === 'coin'
       ? '/api/upgrade/v2/futures/open-interest/aggregated-coin-margin-history'
       : '/api/upgrade/v2/futures/open-interest/aggregated-stablecoin-history';
-    return apiGet(path, { symbol, interval, limit });
+    const p = { symbol, interval, limit };
+    if (start_time) p.start_time = start_time; if (end_time) p.end_time = end_time;
+    return apiGet(path, p);
   },
   // coin_futures_data
-  historical_depth: ({ symbol, key, limit = '100' }) => apiGet('/api/upgrade/v2/futures/historical-depth', { key: resolveSymbol(symbol || key), limit }),
-  super_depth: ({ symbol, key, amount = '10000', limit = '100' }) => apiGet('/api/upgrade/v2/futures/super-depth/history', { key: resolveSymbol(symbol || key), amount, limit }),
-  trade_data: ({ symbol, dbkey, limit = '100' }) => apiGet('/api/upgrade/v2/futures/trade-data', { dbkey: resolveDbkey(symbol || dbkey), limit }),
+  historical_depth: ({ symbol, key, limit = '100', start_time, end_time }) => {
+    const p = { key: resolveSymbol(symbol || key), limit };
+    if (start_time) p.start_time = start_time; if (end_time) p.end_time = end_time;
+    return apiGet('/api/upgrade/v2/futures/historical-depth', p);
+  },
+  super_depth: ({ symbol, key, amount = '10000', limit = '100', start_time, end_time }) => {
+    const p = { key: resolveSymbol(symbol || key), amount, limit };
+    if (start_time) p.start_time = start_time; if (end_time) p.end_time = end_time;
+    return apiGet('/api/upgrade/v2/futures/super-depth/history', p);
+  },
+  trade_data: ({ symbol, dbkey, limit = '100', start_time, end_time }) => {
+    const p = { dbkey: resolveDbkey(symbol || dbkey), limit };
+    if (start_time) p.start_time = start_time; if (end_time) p.end_time = end_time;
+    return apiGet('/api/upgrade/v2/futures/trade-data', p);
+  },
 
   // Aliases: actions models often mis-route here from features.mjs
   big_orders: ({ symbol }) => apiGet('/api/v2/order/bigOrder', { symbol: resolveSymbol(symbol) }),

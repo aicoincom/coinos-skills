@@ -47,4 +47,9 @@ cli({
     return apiGet('/api/v2/signal/changeSignal', p);
   },
   delete_signal: ({ id }) => apiGet('/api/v2/signal/delSignalAlert', { id }),
+  add_signal: ({ subType, symbol, remark }) => {
+    const p = { subType, symbol };
+    if (remark) p.remark = remark;
+    return apiGet('/api/v2/signal/addSignalAlert', p);
+  },
 });

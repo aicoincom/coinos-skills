@@ -52,9 +52,10 @@ cli({
     if (open_time) p.open_time = open_time;
     return apiGet('/api/v2/commonKline/dataRecords', p);
   },
-  indicator_kline: ({ symbol, indicator_key, period, size = '100' }) => {
+  indicator_kline: ({ symbol, indicator_key, period, size = '100', open_time, since }) => {
     const p = { symbol, indicator_key, size };
     if (period) p.period = period;
+    if (open_time) p.open_time = open_time; if (since) p.since = since;
     return apiGet('/api/v2/indicatorKline/dataRecords', p);
   },
   indicator_pairs: ({ coinType, indicator_key } = {}) => {

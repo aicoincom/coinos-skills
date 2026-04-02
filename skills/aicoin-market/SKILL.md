@@ -128,7 +128,7 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 | `ticker` | Exchange tickers | 基础版 | `{"market_list":"okex,binance"}` |
 | `futures_interest` | Futures OI ranking | 基础版 | `{"language":"cn"}` |
 | `depth_latest` | Real-time depth | 标准版 | `{"symbol":"btcswapusdt:binance"}` |
-| `indicator_kline` | Indicator K-line | 高级版 | `{"symbol":"btcswapusdt:binance","indicator_key":"fundflow","period":"3600"}` |
+| `indicator_kline` | Indicator K-line | 高级版 | `{"symbol":"btcswapusdt:binance","indicator_key":"fundflow","period":"3600"}` Optional: `open_time`, `since` |
 | `indicator_pairs` | Indicator pairs | 高级版 | `{"indicator_key":"fundflow"}` |
 | `index_list` | Index list | 高级版 | None |
 | `index_price` | Index price | 高级版 | `{"key":"i:diniw:ice"}` |
@@ -166,6 +166,7 @@ All scripts: `node scripts/<name>.mjs <action> [json-params]`
 | `signal_alert_list` | Alert list | 专业版 | None |
 | `stock_market` | Crypto stocks | 专业版 | None |
 | `delete_signal` | Delete alert | 专业版 | `{"id":"xxx"}` |
+| `add_signal` | Add signal alert | 标准版 | `{"subType":"ma:1440:single_ma:7","symbol":"btcusdt:binance"}` Optional: `remark` |
 
 ### scripts/news.mjs — News & Content
 
