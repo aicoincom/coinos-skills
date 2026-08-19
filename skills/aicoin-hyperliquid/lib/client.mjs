@@ -41,6 +41,151 @@ export function normalizePath(ep) {
   return '/api/v3/' + p;
 }
 
+const KLINE_INTERVAL_SECONDS = Object.freeze({
+  '1m': 60,
+  '3m': 180,
+  '5m': 300,
+  '15m': 900,
+  '30m': 1800,
+  '1h': 3600,
+  '2h': 7200,
+  '4h': 14400,
+  '6h': 21600,
+  '8h': 28800,
+  '12h': 43200,
+  '1d': 86400,
+  '3d': 259200,
+  '1w': 604800,
+});
+
+function legacyAuthParams() {
+  const headers = authHeaders();
+  return {
+    AccessKeyId: headers['X-Aic-AccessKey-Id'],
+    SignatureNonce: headers['X-Aic-Signature-Nonce'],
+    Timestamp: headers['X-Aic-Timestamp'],
+    Signature: headers['X-Aic-Signature'],
+  };
+}
+
+async function readJsonResponse(res) {
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch { return { ok: false, error: { code: 'bad_response', message: text.slice(0, 300) } }; }
+}
+
+async function requestV3(method, full, params, fetchImpl = fetch) {
+  const m = (method || 'GET').toUpperCase();
+  const headers = authHeaders();
+  let url = `${BASE}${full}`;
+  const init = { method: m, headers, signal: AbortSignal.timeout(30000) };
+  if (m === 'GET' || m === 'DELETE') {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(params || {})) {
+      if (v === undefined || v === null || v === '') continue;
+      qs.set(k, Array.isArray(v) ? v.join(',') : String(v));
+    }
+    const s = qs.toString();
+    if (s) url += `?${s}`;
+  } else {
+    headers['Content-Type'] = 'application/json';
+    init.body = JSON.stringify(params || {});
+  }
+  const res = await fetchImpl(url, init);
+  let body = await readJsonResponse(res);
+  // v3 business endpoints answer with {ok,...}. Auth / quota errors from the
+  // gateway are still legacy-shaped ({success:false,errorCode,error}); fold them
+  // into the same envelope so callers only ever branch on `ok`.
+  if (body && typeof body === 'object' && typeof body.ok !== 'boolean' && (res.status >= 400 || body.success === false)) {
+    body = {
+      ok: false,
+      data: null,
+      error: {
+        code: body.errorCode != null ? String(body.errorCode) : String(res.status),
+        message: body.error || body.message || body.msg || `HTTP ${res.status}`,
+      },
+      meta: {},
+    };
+  }
+  return { httpStatus: res.status, body };
+}
+
+/**
+ * The v3 K-line gateway currently returns an empty series after a long wait
+ * for pairs that the v2 commonKline endpoint serves immediately. Resolve the
+ * canonical dbkey through the fast v3 ticker, then use the documented v2
+ * endpoint and normalize it back to the v3 envelope. The same user credential
+ * signs both calls; no platform/global key is introduced here.
+ */
+async function requestLegacyKlines(params, fetchImpl = fetch) {
+  const period = KLINE_INTERVAL_SECONDS[params?.interval || '15m'];
+  if (!period) return null;
+
+  const tickerParams = {
+    coin_key: params?.coin_key,
+    market: params?.market,
+    quote_coin_key: params?.quote_coin_key,
+    contract_type: params?.contract_type,
+  };
+  const ticker = await requestV3('GET', '/api/v3/market/ticker', tickerParams, fetchImpl);
+  const symbol = ticker.body?.ok === true ? ticker.body?.data?.ticker?.key : null;
+  if (!symbol || typeof symbol !== 'string') return null;
+
+  const size = Math.max(1, Math.min(500, Number(params?.limit) || 100));
+  const endTime = Number(params?.end_time);
+  const query = new URLSearchParams({
+    symbol,
+    period: String(period),
+    size: String(size),
+    ...(Number.isFinite(endTime) && endTime > 0
+      ? { since: String(Math.floor(endTime / 1000)) }
+      : {}),
+    ...legacyAuthParams(),
+  });
+  const res = await fetchImpl(`${BASE}/api/v2/commonKline/dataRecords?${query}`, {
+    method: 'GET',
+    signal: AbortSignal.timeout(15000),
+  });
+  const body = await readJsonResponse(res);
+  const rows = body?.success === true && Array.isArray(body?.data?.kline_data)
+    ? body.data.kline_data
+    : null;
+  if (!res.ok || !rows?.length) return null;
+
+  const startTime = Number(params?.start_time);
+  const candles = rows
+    .map((row) => ({
+      timestamp: Number(row?.[0]) * 1000,
+      open: Number(row?.[1]),
+      high: Number(row?.[2]),
+      low: Number(row?.[3]),
+      close: Number(row?.[4]),
+      volume: Number(row?.[5]),
+    }))
+    .filter((candle) => Number.isFinite(candle.timestamp)
+      && (!Number.isFinite(startTime) || startTime <= 0 || candle.timestamp >= startTime));
+  if (!candles.length) return null;
+
+  return {
+    httpStatus: 200,
+    body: {
+      ok: true,
+      data: {
+        candles,
+        pair: ticker.body?.data?.pair || null,
+      },
+      error: null,
+      meta: {
+        count: candles.length,
+        interval: params?.interval || '15m',
+        start_time: candles[0].timestamp,
+        end_time: candles[candles.length - 1].timestamp,
+        source: 'v2_common_kline_fallback',
+      },
+    },
+  };
+}
+
 // endpoints.json — a bundled catalog snapshot. Drives GET/POST selection and
 // offline `catalog`. Live catalog is still the source of truth (see fetchCatalog).
 let _snapshot = null;
@@ -63,43 +208,19 @@ export async function fetchCatalog() {
 }
 
 // Core request. Returns { httpStatus, body }; body is the parsed envelope.
-export async function request(method, path, params = {}) {
+export async function request(method, path, params = {}, fetchImpl = fetch) {
   const full = normalizePath(path);
   const m = (method || 'GET').toUpperCase();
-  const headers = authHeaders();
-  let url = `${BASE}${full}`;
-  const init = { method: m, headers, signal: AbortSignal.timeout(30000) };
-  if (m === 'GET' || m === 'DELETE') {
-    const qs = new URLSearchParams();
-    for (const [k, v] of Object.entries(params || {})) {
-      if (v === undefined || v === null || v === '') continue;
-      qs.set(k, Array.isArray(v) ? v.join(',') : String(v));
+  if (m === 'GET' && full === '/api/v3/market/klines') {
+    try {
+      const legacy = await requestLegacyKlines(params, fetchImpl);
+      if (legacy) return legacy;
+    } catch {
+      // Preserve the v3 behavior if pair resolution or the documented v2
+      // fallback is temporarily unavailable.
     }
-    const s = qs.toString();
-    if (s) url += `?${s}`;
-  } else {
-    headers['Content-Type'] = 'application/json';
-    init.body = JSON.stringify(params || {});
   }
-  const res = await fetch(url, init);
-  const text = await res.text();
-  let body;
-  try { body = JSON.parse(text); } catch { body = { ok: false, error: { code: 'bad_response', message: text.slice(0, 300) } }; }
-  // v3 business endpoints answer with {ok,...}. Auth / quota errors from the
-  // gateway are still legacy-shaped ({success:false,errorCode,error}); fold them
-  // into the same envelope so callers only ever branch on `ok`.
-  if (body && typeof body === 'object' && typeof body.ok !== 'boolean' && (res.status >= 400 || body.success === false)) {
-    body = {
-      ok: false,
-      data: null,
-      error: {
-        code: body.errorCode != null ? String(body.errorCode) : String(res.status),
-        message: body.error || body.message || body.msg || `HTTP ${res.status}`,
-      },
-      meta: {},
-    };
-  }
-  return { httpStatus: res.status, body };
+  return requestV3(m, full, params, fetchImpl);
 }
 
 // Resolve which HTTP method an endpoint uses, from snapshot then live catalog.
