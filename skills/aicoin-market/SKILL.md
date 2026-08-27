@@ -80,7 +80,9 @@ node scripts/aicoin.mjs market/ticker '{"coin_key":"bitcoin","market":"binance"}
 4. **详情接口的 id 先从列表接口拿**：快讯/文章详情先 `content/newsflashes`、`content/articles` 取 id；空投/项目详情先 `airdrops`、`drop-radar/projects` 取 `project_id`。
 5. **`ok:false` + HTTP 403** = 当前 key 无此接口权限，**别重试**。先别断言"套餐不够"：本地 host 常见坑是脚本 fallback 到了免费/旧 key —— 先 `node scripts/aicoin.mjs key` 看 key_id 是不是用户的专业版(key 应在 `~/.coinos/.env`)。确属套餐不足，再告诉用户去 https://www.aicoin.com/opendata 升级。`200` + 空 `data` 是"此条件下没数据"，**不是出错**。
 6. **时间用 Unix 毫秒**（`start_time` / `end_time`），分页用 `limit` / `offset`。
-7. 用**用户的语言**回复（中文提问就全程中文）。
+7. **K 线取最新值只读 `_timeseries.latest`**，并按 `_timeseries.field` 核对时间字段（通常是 `time` / `timestamp`）。时间距当前超过两个 K 线周期时只能标注“最新到某时”，禁止称为“当前/实时”。不得用 `head` / `tail` / `cut` 截断 JSON 后猜数组顺序。
+8. **只使用 `scripts/aicoin.mjs`**。旧 `market.mjs` 等 v2 入口已停用；收到 `legacy_entrypoint_retired` 必须按返回提示迁移，不能绕过或从残留脚本取数。
+9. 用**用户的语言**回复（中文提问就全程中文）。
 
 ## API Key
 
