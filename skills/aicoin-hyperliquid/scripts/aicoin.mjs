@@ -46,7 +46,7 @@ async function callEndpoint(endpoint, rawParams) {
     let series = Array.isArray(body.data) ? body.data : null;
     let where = 'data';
     if (!series && body.data && typeof body.data === 'object') {
-      for (const k of ['list', 'items', 'records', 'rows', 'data']) {
+      for (const k of ['candles', 'list', 'items', 'records', 'rows', 'data']) {
         if (Array.isArray(body.data[k])) { series = body.data[k]; where = `data.${k}`; break; }
       }
     }

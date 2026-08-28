@@ -163,7 +163,9 @@ async function requestLegacyKlines(params, fetchImpl = fetch) {
       volume: Number(row?.[5]),
     }))
     .filter((candle) => Number.isFinite(candle.timestamp)
-      && (!Number.isFinite(startTime) || startTime <= 0 || candle.timestamp >= startTime));
+      && (!Number.isFinite(startTime) || startTime <= 0 || candle.timestamp >= startTime))
+    .sort((a, b) => a.timestamp - b.timestamp)
+    .slice(-size);
   if (!candles.length) return null;
 
   return {

@@ -68,6 +68,56 @@ test('market/klines uses the documented v2 source and keeps the v3 envelope', as
   assert.ok(urls[1].searchParams.get('Signature'));
 });
 
+test('market/klines enforces limit locally and keeps the newest candles', async () => {
+  const fetchImpl = async (input) => {
+    const url = new URL(String(input));
+    if (url.pathname === '/api/v3/market/ticker') {
+      return jsonResponse({
+        ok: true,
+        data: {
+          pair: { coin_key: 'bitcoin', market: 'okex' },
+          ticker: { key: 'btcusdt:okex' },
+        },
+        error: null,
+        meta: {},
+      });
+    }
+    assert.equal(url.pathname, '/api/v2/commonKline/dataRecords');
+    assert.equal(url.searchParams.get('size'), '2');
+    // The upstream contract should honor size, but clients must not silently
+    // expose an oversized or differently ordered series as "the latest N".
+    return jsonResponse({
+      success: true,
+      errorCode: 200,
+      error: '',
+      data: {
+        kline_data: [
+          [1787032800, 10, 12, 9, 11, 100],
+          [1787043600, 13, 15, 12, 14, 140],
+          [1787036400, 11, 13, 10, 12, 120],
+          [1787040000, 12, 14, 11, 13, 130],
+        ],
+      },
+    });
+  };
+
+  const result = await request('GET', 'market/klines', {
+    coin_key: 'bitcoin',
+    market: 'okex',
+    interval: '1h',
+    limit: 2,
+  }, fetchImpl);
+
+  assert.equal(result.body.data.candles.length, 2);
+  assert.deepEqual(
+    result.body.data.candles.map((candle) => candle.timestamp),
+    [1787040000000, 1787043600000],
+  );
+  assert.equal(result.body.meta.count, 2);
+  assert.equal(result.body.meta.start_time, 1787040000000);
+  assert.equal(result.body.meta.end_time, 1787043600000);
+});
+
 test('a failed v2 fallback preserves the original v3 K-line behavior', async () => {
   const paths = [];
   const fetchImpl = async (input) => {
