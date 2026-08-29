@@ -14,6 +14,60 @@ const out = (o) => console.log(JSON.stringify(o, null, 2));
 const groupOf = (p) => p.replace(/^\/api\/v3\//, '').split('/')[0] || '_catalog';
 const rel = (p) => p.replace(/^\/api\/v3\//, '');
 
+function positiveEnvMs(name, fallback) {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function isTimeoutError(error) {
+  return error?.name === 'TimeoutError'
+    || error?.code === 'ABORT_ERR'
+    || /aborted due to timeout|timed? ?out/i.test(error?.message || '');
+}
+
+function cleanEndpoint(endpoint) {
+  return String(endpoint || '').replace(/^\/?api\/v3\//, '').replace(/^\//, '');
+}
+
+function endpointTimeoutMs(endpoint) {
+  const configured = positiveEnvMs('AICOIN_REQUEST_TIMEOUT_MS', 0);
+  if (configured > 0) return configured;
+  return cleanEndpoint(endpoint) === 'derivatives/funding-rates' ? 10000 : 30000;
+}
+
+function timeoutEnvelope(error) {
+  return {
+    ok: false,
+    data: null,
+    error: { code: 'upstream_timeout', message: error?.message || 'upstream request timed out' },
+    meta: {},
+    _hint: '服务端/上游超时，不是 Key 失效。不要连续重试；继续使用已成功返回的行情/K线数据，并明确标注该项暂不可用。',
+  };
+}
+
+function annotateEndpointResult(endpoint, body, httpStatus) {
+  const ep = cleanEndpoint(endpoint);
+  if (!body || typeof body !== 'object') return body;
+
+  if (ep === 'market/orderbook/latest-depth' && httpStatus >= 500) {
+    body._hint = '该交易对可能暂无深度快照覆盖，或深度上游暂时异常；这不是 Key 失效。不要连续重试，行情与 K 线仍可继续使用。';
+  }
+
+  if (ep === 'derivatives/funding-rates' && httpStatus >= 500) {
+    body._hint = '资金费率服务端/上游异常，不是 Key 失效。不要连续重试；继续完成不依赖资金费率的分析。';
+  }
+
+  if ((ep === 'market/indicator-klines' || ep === 'market/indicator-pairs') && body.ok === true) {
+    const series = ep === 'market/indicator-klines' ? body.data?.list : body.data?.items;
+    if (Array.isArray(series) && series.length === 0) {
+      body.meta = { ...(body.meta || {}), coverage: 'not_available' };
+      body._hint = '当前指标与交易对暂无覆盖数据，不是请求失败。不要重试；改用已覆盖的数据项，并如实标注缺失。';
+    }
+  }
+
+  return body;
+}
+
 const HINTS = {
   401: 'HTTP 401 — 签名或鉴权失败，检查 API key 是否正确。',
   403: 'HTTP 403 — 此接口当前 key 无权限。**先别断言「套餐不够」**：本地 host 最常见的坑是脚本 fallback 到了免费/旧 key —— 跑 `node scripts/aicoin.mjs key` 看 key_id 是不是你的专业版（key 应放 ~/.coinos/.env）。确属套餐不足，再让用户去 https://www.aicoin.com/opendata 升级。不要重试。',
@@ -37,10 +91,17 @@ async function callEndpoint(endpoint, rawParams) {
     return out({ ok: false, error: { code: 'unknown_endpoint', message: `未知接口: ${endpoint}` }, _hint: '跑 `node scripts/aicoin.mjs catalog` 看全部接口。' });
   }
   let res;
-  try { res = await request(resolved.method, endpoint, params); }
-  catch (e) { return out({ ok: false, error: { code: 'network', message: e.message }, _hint: '网络/超时错误，稍后重试。' }); }
+  try {
+    res = await request(resolved.method, endpoint, params, fetch, {
+      timeoutMs: endpointTimeoutMs(endpoint),
+    });
+  } catch (e) {
+    if (isTimeoutError(e)) return out(timeoutEnvelope(e));
+    return out({ ok: false, data: null, error: { code: 'network', message: e.message }, meta: {}, _hint: '网络连接失败；这不能证明 Key 无效。检查网络后再试一次。' });
+  }
   const body = (res.body && typeof res.body === 'object') ? res.body : { raw: res.body };
   if (res.httpStatus !== 200 && HINTS[res.httpStatus]) body._hint = HINTS[res.httpStatus];
+  annotateEndpointResult(endpoint, body, res.httpStatus);
   // 时序数组: 附一个 order-independent 的 latest, 防 agent 用 tail/arr[0] 猜错方向。
   if (body && body.ok) {
     let series = Array.isArray(body.data) ? body.data : null;
@@ -107,18 +168,40 @@ async function showKey() {
     ['hyperliquid/whales/open-positions', { coin: 'BTC' }],
     ['treasuries/summary', { coin_key: 'bitcoin' }],
   ];
-  const access = [];
-  for (const [ep, params] of probes) {
+  const probeTimeoutMs = positiveEnvMs('AICOIN_KEY_PROBE_TIMEOUT_MS', 3000);
+  const access = await Promise.all(probes.map(async ([ep, params], index) => {
+    const affectsKeyValidity = index === 0;
     try {
-      const { httpStatus, body } = await request('GET', ep, params);
-      access.push({ endpoint: ep, http: httpStatus, ok: body?.ok === true });
-    } catch (e) { access.push({ endpoint: ep, error: e.message }); }
-  }
+      const { httpStatus, body } = await request('GET', ep, params, fetch, {
+        timeoutMs: probeTimeoutMs,
+      });
+      return {
+        endpoint: ep,
+        http: httpStatus,
+        ok: body?.ok === true,
+        affects_key_validity: affectsKeyValidity,
+      };
+    } catch (e) {
+      return {
+        endpoint: ep,
+        error_code: isTimeoutError(e) ? 'upstream_timeout' : 'network',
+        error: e.message,
+        affects_key_validity: affectsKeyValidity,
+      };
+    }
+  }));
+  const primary = access[0];
+  const validity = primary?.http === 200 && primary?.ok === true
+    ? 'valid'
+    : primary?.http === 401
+      ? 'invalid'
+      : 'unknown';
   out({
     key_id: KEY ? KEY.slice(0, 6) + '…' : null,
     source: USING_OWN_KEY ? '用户自己的 key (.env)' : '内置免费 key',
+    validity,
     access,
-    note: '某个接口 http=403 表示当前套餐不覆盖它；要更多权限去 https://www.aicoin.com/opendata。',
+    note: 'Key 有效性只由基础行情探测判断。其他接口超时/5xx 表示该能力或上游异常；403 表示当前套餐不覆盖，均不等于 Key 失效。',
   });
 }
 

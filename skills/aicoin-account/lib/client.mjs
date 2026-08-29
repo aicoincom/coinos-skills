@@ -74,11 +74,15 @@ async function readJsonResponse(res) {
   catch { return { ok: false, error: { code: 'bad_response', message: text.slice(0, 300) } }; }
 }
 
-async function requestV3(method, full, params, fetchImpl = fetch) {
+async function requestV3(method, full, params, fetchImpl = fetch, options = {}) {
   const m = (method || 'GET').toUpperCase();
   const headers = authHeaders();
   let url = `${BASE}${full}`;
-  const init = { method: m, headers, signal: AbortSignal.timeout(30000) };
+  const configuredTimeout = Number(options?.timeoutMs);
+  const timeoutMs = Number.isFinite(configuredTimeout) && configuredTimeout > 0
+    ? configuredTimeout
+    : 30000;
+  const init = { method: m, headers, signal: AbortSignal.timeout(timeoutMs) };
   if (m === 'GET' || m === 'DELETE') {
     const qs = new URLSearchParams();
     for (const [k, v] of Object.entries(params || {})) {
@@ -210,7 +214,7 @@ export async function fetchCatalog() {
 }
 
 // Core request. Returns { httpStatus, body }; body is the parsed envelope.
-export async function request(method, path, params = {}, fetchImpl = fetch) {
+export async function request(method, path, params = {}, fetchImpl = fetch, options = {}) {
   const full = normalizePath(path);
   const m = (method || 'GET').toUpperCase();
   if (m === 'GET' && full === '/api/v3/market/klines') {
@@ -222,7 +226,7 @@ export async function request(method, path, params = {}, fetchImpl = fetch) {
       // fallback is temporarily unavailable.
     }
   }
-  return requestV3(m, full, params, fetchImpl);
+  return requestV3(m, full, params, fetchImpl, options);
 }
 
 // Resolve which HTTP method an endpoint uses, from snapshot then live catalog.

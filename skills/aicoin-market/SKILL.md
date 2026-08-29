@@ -83,6 +83,10 @@ node scripts/aicoin.mjs market/ticker '{"coin_key":"bitcoin","market":"binance"}
 7. **K 线取最新值只读 `_timeseries.latest`**，并按 `_timeseries.field` 核对时间字段（通常是 `time` / `timestamp`）。时间距当前超过两个 K 线周期时只能标注“最新到某时”，禁止称为“当前/实时”。不得用 `head` / `tail` / `cut` 截断 JSON 后猜数组顺序。
 8. **只使用 `scripts/aicoin.mjs`**。旧 `market.mjs` 等 v2 入口已停用；收到 `legacy_entrypoint_retired` 必须按返回提示迁移，不能绕过或从残留脚本取数。
 9. 用**用户的语言**回复（中文提问就全程中文）。
+10. **不要把上游故障误判成 Key 失效。** `node scripts/aicoin.mjs key` 只用基础行情探测判断 Key：核心探测 `401` 才表示 Key 无效，`403` 是权限不覆盖，超时或 `5xx` 是接口/上游异常。可选接口失败时，已成功的行情和 K 线仍可继续用于回答。
+11. **故障接口不要连续重试。** 单次请求超时或 `5xx` 后立即降级并如实标注；资金费率、深度、指标属于可选增强数据，不能因为它们失败就声称“所有数据都查不到”。
+12. **指标先查覆盖。** 调 `market/indicator-klines` 前先调 `market/indicator-pairs` 确认交易对和指标有覆盖。两者返回 `200` 空序列时表示暂无覆盖，跳过该指标，不做本地计算，也不要重试。
+13. **严格尊重 K 线周期。** 用户问“单日涨跌超过 8%”时必须使用 `1d` K 线；不能拿 `3d` K 线替代“单日”。若日线历史窗口不足，就基于现有日线给出结论并明确样本范围。
 
 ## API Key
 
